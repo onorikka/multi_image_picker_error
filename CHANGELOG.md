@@ -55,3 +55,53 @@
   object and incorrectly use the unsupported `Object.assign` method.
 
 # v2.0.8
+
+## Bug Fixes ##
+- Issue #300. Restores compatibility with Windows 11 by removing refernces
+  to Object.assign
+
+# v2.0.7
+
+## Enhancements ##
+- Issue #300. Signer methods and urls paramaters now enable the AWS signing
+  version 4 canonical request to be passed.
+- Issue #305. Adds new callback `uploadInitiated` that returns the S3 upload ID.
+
+# v2.0.6
+
+## Enhancements ##
+- Issue #290. Improved python example for V4 signatures.
+
+## Bug Fixes ##
+- Issue #292. Corrects an issue where the override options on Evaporate#add were not properly
+  applied.
+
+# v2.0.5
+
+## Enhancements ##
+- Issue #199. Adds support for multipart uploads using Node FileSytem (fs) ReadableStreams.
+  This enables intregration with Electron to upload files outside of a browser framework.
+
+# v2.0.4
+
+## Bug Fixes ##
+- Issue #284. Memory was being retained during an upload but released on completion. Memory
+  is properly managed now.
+
+# v2.0.3
+
+Note: tagged branch 1.6.4 is available with this fix for 1.x users. To install,
+
+```shell
+npm install git://github.com/TTLabs/EvaporateJS.git#1.6.4
+```
+
+## Bug Fixes ##
+- Correctly encodes all single quotes in an S3 object name. Issue #264 (revisited)
+- Simplifies internal 'casting' of ArrayBuffer to Uint8Array (ArrayBufferView)
+
+# v2.0.2
+
+## Enhancements ##
+- Optimizes size of last part, making sure it's not reporting longer than it actually is
+- Improves memory reuse of large parts
