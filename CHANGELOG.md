@@ -167,3 +167,71 @@ npm install git://github.com/TTLabs/EvaporateJS.git#1.6.4
   more then 1,000 parts.
 
 # v1.6.3#
+- Corrects license name for compatibility with webjars.org.
+- Addresses file.lastModifiedDate deprecation warning in FireFox
+
+# v1.6.2#
+This is a release with only changes to the readme.
+
+# v1.6.1#
+
+## Bug Fixes ##
+- Correctly calculates the local time offset
+
+# v1.6.0#
+
+## Bug Fixes ##
+- Issue #264, properly encodes S3 object names containing single quotes (')
+
+# v1.5.9#
+
+## Enhancements ##
+- Adds more test coverage.
+
+## Bug Fixes ##
+- Corrects an error message that was using a 0-based index rather than 1
+- Correctly aborts an upload if start() cancels the upload.
+- Fixes a bug where the reported progress doubled after resuming an upload
+- Fixes the ability to fetch the uploaded part count for files with more than
+  1,000 uploaded parts.
+- Adds safety checks for parsing the error XML from AWS responses
+
+# v1.5.8#
+
+## Enhancements ##
+- Issue #231. Enahances the custom `signResponseHandler` method signature
+  to include the stringToSign and dateString that are passed to the remote
+  `signerUrl`.
+- Issue #232. Adds new option `xAmzHeadersCommon` for specifying xAms
+  headers for all AWS S3 requests.
+- Improves test coverage further.
+
+## Bug Fixes ##
+- Issue #232, applies `xAmzHeadersCommon` to all AWS S3 requests that
+  previously were lacking them.
+
+# v1.5.7#
+
+## Bug Fixes ##
+- Issue #242, canceling an upload did not probably clear internal state,
+  causing other uploads to fail silently.
+- Issue #241, after being offline for a period of time, and returing
+  back online, evaporate did not correctly keep track of internal state,
+  causing unnecessary traffic and triggering unpredictable XHR responses.
+
+# v1.5.6#
+
+## Bug Fixes ##
+- Issues #227, 223. Addresses all known concurrency issues
+
+# v1.5.5#
+
+## Bug Fixes ##
+- Issue #214. Uploads on IE were failing because IE does not add a leading
+slash to a file path. This has been fixed.
+- Issue #222. Object key names with parentheses were not being correctly
+encoded, resulting in signature mismatches.
+
+# v1.5.4#
+
+## Enhancements ##
