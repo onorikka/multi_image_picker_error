@@ -304,3 +304,65 @@ for URLs without a search part.
 - Issue #180. Adds 'bucket' to the list of configuration options that can
 be overridden in the `.add()` method.
 - Issue #183. Revtored maxFileSize validation.
+
+# v1.4.4#
+
+## Enhancements ##
+- Adds a python example.
+
+## Bug Fixes ##
+- Issue #174. Reverts changes to the documentation around the .add() method and fixes bug related to how the file is passed
+to EvaporateJS.
+
+# v1.4.3#
+
+## Bug Fixes ##
+- Issue #168. Resolves issue where the localStorage cache was not being cleaned up, resulting in a potential browser error when limits were exceeded.
+
+# v1.4.2#
+
+## Bug Fixes ##
+- Issue #166. Resolves incorrect signuature for V2 signing on getListParts. This bug was introduced in v1.4.0.
+
+# v1.4.1#
+
+## Enhancements ##
+- Issue #163. Adds a File callback used to indicate when Evaporate starts processing a file for upload.
+- Adds a Golang example file
+- Various documentation corrections
+
+# v1.4.0#
+
+## Enhancements ##
+- Issue #61. Adds ability to change some config options when adding a file to EvaporateJS.
+- Issue #71. Adds support for AWS Signature Version 4.
+
+# v1.3.0#
+
+## Enhancements ##
+- Issue #144. Adds support for enabling AWS S3 Transfer Acceleration using the new options `s3Acceleration`.
+- Issue #148. Adds support for signature processing with a custom method using `signResponseHandler`.
+
+## Bug Fixes ##
+- Issue #135: Does not throw an error on uninitiated uploads if user chooses to Cancel
+
+# v1.2.0#
+
+## Enhancements ##
+
+- Issue #139. If you wish Evaporate to only upload to the AWS key specified, and disregard any previous attempts to
+  upload the same file to a different key, you can now specify `onlyRetryForSameFileName`.
+- Issues #41, #143. Adds a sample app.yml file for Google apps.
+- Issue #136. Adds a configuration option to validate maximum uploaded file size. You can now specify `maxFileSize`.
+- Issues #74, #133. Removes synchronous logic to fetch server time to resolve AWS `RequestTimeTooSkewed` response.
+
+# v1.1.1#
+
+## Bug Fixes ##
+- Corrects XML parsing method correctly use `textContent` rather than `nodeValue`.
+- Corrects JavaScript style issues
+
+# v1.1.0#
+
+## Features##
+- Adds support for signing reqeusts using AWS Lambdas.
