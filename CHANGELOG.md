@@ -235,3 +235,72 @@ encoded, resulting in signature mismatches.
 # v1.5.4#
 
 ## Enhancements ##
+- Issue #197. Allows signerUrl to be optional so that developers can
+  leverage AWSLambda or signResponseHandler functions to sign
+  requests.
+
+# v1.5.3#
+
+## Enhancements ##
+- Issue #202. Defaults AWS Region to us-east-1 and correctly sets
+the default AWS URL for non us-east-1 users.
+- Documents that the signParams and signHeaders object
+  can use functions.
+
+## Bug Fixes ##
+- Issue #205. SignatureDoesNotMatch for some parts, when
+`maxConcurrentParts > 1`.
+- Issue #208. Addressed Internet Explorer compatibility issue with parsing
+XML error responses.
+- Issue #209. Addresses when the part uploaded byte count is reset when
+a part fails to upload and will be retried.
+
+# v1.5.2#
+
+## Enhancements ##
+- Issue #191: Adds initital test framework.
+- Improves the readme in response to user feedback.
+
+## Bug Fixes ##
+- Issue #203. Configuration options signParams and signHeaders were not
+properly propagated the as a result, were ignored.
+
+# v1.5.1#
+
+## Bug Fixes ##
+- Issue #196. S3 object names containing a slash '/' were being encoded,
+causing the Signature V4 calculation to be wrong.
+
+# v1.5.0#
+
+## Enhancements ##
+- Issue #17. Allows file uploads to be paused and resumed. Pausing can
+be forced. In such cases, the in-progress parts are immediately aborted
+and the file upload paused. Otherwise, the file is paused after all
+in-progress parts have completed.
+- Adds three new file callbacks: `paused`, `pausing` and `resumed`.
+- The file `started` callback is now passed the upload ID of the file
+being started.
+- Some internal variables renamed for clarity
+- Improves evaporate_example.html to exercise more features, including
+MD5 checksums, pause/resume and integration with ProgressBar.
+
+# v1.4.7#
+
+Republished 1.4.6 as NPM had a draft version by mistake
+
+# v1.4.6#
+
+## Bug Fixes ##
+- Issue #183. Fixes issue where V4 signature was incorrectly calculated
+for URLs without a search part.
+
+# v1.4.5#
+
+## Enhancements ##
+- Issue #179. Allows XMLHttpRequest `xhrWithCreditials` to be set.
+
+## Bug Fixes ##
+- Issue #180. Adds 'bucket' to the list of configuration options that can
+be overridden in the `.add()` method.
+- Issue #183. Revtored maxFileSize validation.
