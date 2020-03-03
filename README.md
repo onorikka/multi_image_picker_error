@@ -79,3 +79,73 @@ And that's it! It should immediately work. If you have some feedback about it, p
 ### Monitorable
 
 - The `progress()` and `complete()` callbacks provide upload stats like transfer rate and time remaining.
+
+- Pause, Resume, Cancel can act on all in-progress file uploads
+
+### Cross Platform
+
+- Support for Node.js FileSystem (fs) ReadbleStreams. This means you can use Electron to upload a file directly from
+  the file system's native File picker and avoid the usual browser restrictions.
+
+## Installation
+
+```bash
+$ npm install evaporate
+```
+
+## API & Usage
+
+The documentation for the usage of the whole API is [available here](https://github.com/TTLabs/EvaporateJS/wiki/API).
+
+This is a simple example of how you can configure it:
+
+```javascript
+const Evaporate = require('EvaporateJS');
+const Crypto = require('crypto');
+
+const config = {
+  signerUrl: SIGNER_URL,
+  aws_key: AWS_KEY,
+  bucket: AWS_BUCKET,
+  cloudfront: true,
+  computeContentMd5: true,
+  cryptoMd5Method: data => Crypto
+  .createHash('md5')
+  .update(data)
+  .digest('base64');
+};
+
+const uploadFile = evaporate => {
+  const file = new File([""], "file_object_to_upload");
+
+  const addConfig = {
+    name: file.name,
+    file: file,
+    progress: progressValue => console.log('Progress', progressValue),
+    complete: (_xhr, awsKey) => console.log('Complete!'),
+  }
+
+  /*
+    The bucket and some other properties
+    can be changed per upload
+  */
+
+  const overrides = {
+    bucket: AWS_BUCKET_2
+  };
+
+  evaporate.add(addConfig, overrides)
+    .then(
+      awsObjectKey =>
+        console.log('File successfully uploaded to:', awsObjectKey),
+      reason =>
+        console.log('File did not upload sucessfully:', reason);
+    )
+}
+
+return Evaporate.create(config).then(uploadFile);
+```
+
+More examples are available [here](https://github.com/TTLabs/EvaporateJS/wiki/Examples).
+
+Don't forget to check out the [Browser Compatibility](https://github.com/TTLabs/EvaporateJS/wiki/Browser-Compatibility) and [Important Usage Notes](https://github.com/TTLabs/EvaporateJS/wiki/Important-Usage-Notes) pages for usage details.
