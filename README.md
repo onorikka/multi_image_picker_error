@@ -149,3 +149,23 @@ return Evaporate.create(config).then(uploadFile);
 More examples are available [here](https://github.com/TTLabs/EvaporateJS/wiki/Examples).
 
 Don't forget to check out the [Browser Compatibility](https://github.com/TTLabs/EvaporateJS/wiki/Browser-Compatibility) and [Important Usage Notes](https://github.com/TTLabs/EvaporateJS/wiki/Important-Usage-Notes) pages for usage details.
+
+## Authors
+
+- Bobby Wallace - [@bikeath1337](http://github.com/bikeath1337)
+- Tom Saffell - [@tomsaffell](http://github.com/tomsaffell)
+
+## Maintainers
+
+- Jakub Zitny - [@jakubzitny](http://github.com/jakubzitny)
+- Matheus Moreira - [@mattmoreira](http://github.com/mattmoreira)
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+
+This package is licensed under the [BSD 3-Clause](http://opensource.org/licenses/BSD-3-Clause) license
