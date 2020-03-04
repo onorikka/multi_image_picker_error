@@ -1,4 +1,4 @@
 {
   "name": "evaporatejs",
   "version": "2.1.4",
-  "description": "Javascript library for browser
+  "description": "Javascript library for browser to S3 multipart resumable uploads for node.js and browse
