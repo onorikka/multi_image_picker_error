@@ -10,4 +10,8 @@
     "transfer",
     "acceleration"
   ],
-  "authors": 
+  "authors": [
+    "Tom Saffell"
+  ],
+  "license": "BSD-2-Clause",
+  "homep
