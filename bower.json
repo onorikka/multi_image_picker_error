@@ -15,4 +15,7 @@
   ],
   "license": "BSD-2-Clause",
   "homepage": "https://github.com/TTLabs/EvaporateJS",
-  "ignore": 
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_componen
