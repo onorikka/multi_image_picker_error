@@ -92,3 +92,54 @@
     }, config);
 
     if (typeof window !== 'undefined' && window.console) {
+      l = window.console;
+      l.d = l.log;
+      l.w = window.console.warn ? l.warn : l.d;
+      l.e = window.console.error ? l.error : l.d;
+    }
+
+    this._instantiationError = this.validateEvaporateOptions();
+    if (typeof this._instantiationError === 'string') {
+      this.supported = false;
+      return;
+    } else {
+      delete this._instantiationError;
+    }
+
+    if (!this.config.logging) {
+      // Reset the logger to be a no_op
+      l = noOpLogger();
+    }
+
+    var _d = new Date();
+    HOURS_AGO = new Date(_d.setHours(_d.getHours() - (this.config.s3FileCacheHoursAgo || -100)));
+    if (typeof config.localTimeOffset === 'number') {
+      this.localTimeOffset = config.localTimeOffset;
+    } else {
+      var self = this;
+      Evaporate.getLocalTimeOffset(this.config)
+          .then(function (offset) {
+            self.localTimeOffset = offset;
+          });
+    }
+    this.pendingFiles = {};
+    this.queuedFiles = [];
+    this.filesInProcess = [];
+    historyCache = new HistoryCache(this.config.mockLocalStorage);
+  };
+  Evaporate.create = function (config) {
+    var evapConfig = extend({}, config);
+    return Evaporate.getLocalTimeOffset(evapConfig)
+        .then(function (offset) {
+          evapConfig.localTimeOffset = offset;
+          return new Promise(function (resolve, reject) {
+            var e = new Evaporate(evapConfig);
+            if (e.supported === true) {
+              resolve(e);
+            } else {
+              reject(e._instantiationError);
+            }
+          });
+        });
+  };
+  Evaporate.getLocalTimeOffset = function (config) {
