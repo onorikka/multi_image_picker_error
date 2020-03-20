@@ -143,3 +143,49 @@
         });
   };
   Evaporate.getLocalTimeOffset = function (config) {
+    return new Promise(function (resolve, reject) {
+      if (typeof config.localTimeOffset === 'number') {
+        return resolve(config.localTimeOffset);
+      }
+      if (config.timeUrl) {
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", config.timeUrl + '?requestTime=' + new Date().getTime());
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              var server_date = new Date(Date.parse(xhr.responseText)),
+                  offset = server_date - new Date();
+              l.d('localTimeOffset is', offset, 'ms');
+              resolve(offset);
+            }
+          }
+        };
+
+        xhr.onerror = function (xhr) {
+          l.e('xhr error timeUrl', xhr);
+          reject('Fetching offset time failed with status: ' + xhr.status);
+        };
+        xhr.send();
+      } else {
+        resolve(0);
+      }
+    });
+  };
+  Evaporate.prototype.config = {};
+  Evaporate.prototype.localTimeOffset = 0;
+  Evaporate.prototype.supported = false;
+  Evaporate.prototype._instantiationError = undefined;
+  Evaporate.prototype.evaporatingCount = 0;
+  Evaporate.prototype.pendingFiles = {};
+  Evaporate.prototype.filesInProcess = [];
+  Evaporate.prototype.queuedFiles = [];
+  Evaporate.prototype.startNextFile = function (reason) {
+    if (!this.queuedFiles.length ||
+        this.evaporatingCount >= this.config.maxConcurrentParts) { return; }
+    var fileUpload = this.queuedFiles.shift();
+    if (fileUpload.status === PENDING) {
+      l.d('Starting', decodeURIComponent(fileUpload.name), 'reason:', reason);
+      this.evaporatingCnt(+1);
+      fileUpload.start();
+    } else {
