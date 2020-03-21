@@ -303,3 +303,66 @@
     var promise = [];
     if (this.pendingFiles[id]) {
       promise.push(this.pendingFiles[id].stop());
+    } else {
+      promise.push(Promise.reject('File does not exist'));
+    }
+    return Promise.all(promise);
+  };
+  Evaporate.prototype.pause = function (id, options) {
+    options = options || {};
+    var force = typeof options.force === 'undefined' ? false : options.force;
+    return typeof id === 'undefined' ? this._pauseAll(force) : this._pauseOne(id, force);
+  };
+  Evaporate.prototype._pauseAll = function (force) {
+    l.d('Pausing all file uploads');
+    var promises = [];
+    for (var key in this.pendingFiles) {
+      if (this.pendingFiles.hasOwnProperty(key)) {
+        var file = this.pendingFiles[key];
+        if (ACTIVE_STATUSES.indexOf(file.status) > -1) {
+          this._pause(file, force, promises);
+        }
+      }
+    }
+    return Promise.all(promises);
+  };
+  Evaporate.prototype._pauseOne = function (id, force) {
+    var promises = [],
+        file = this.pendingFiles[id];
+    if (typeof file === 'undefined') {
+      promises.push(Promise.reject('Cannot pause a file that has not been added.'));
+    } else if (file.status === PAUSED) {
+      promises.push(Promise.reject('Cannot pause a file that is already paused.'));
+    }
+    if (!promises.length) {
+      this._pause(file, force, promises);
+    }
+    return Promise.all(promises);
+  };
+  Evaporate.prototype._pause = function(fileUpload, force, promises) {
+    promises.push(fileUpload.pause(force));
+    removeAtIndex(this.filesInProcess, fileUpload);
+    removeAtIndex(this.queuedFiles, fileUpload);
+  };
+  Evaporate.prototype.resume = function (id) {
+    return typeof id === 'undefined' ? this._resumeAll() : this._resumeOne(id);
+  };
+  Evaporate.prototype._resumeAll = function () {
+    l.d('Resuming all file uploads');
+    for (var key in this.pendingFiles) {
+      if (this.pendingFiles.hasOwnProperty(key)) {
+        var file = this.pendingFiles[key];
+        if (PAUSED_STATUSES.indexOf(file.status) > -1)  {
+          this.resumeFile(file);
+        }
+      }
+    }
+    return Promise.resolve();
+  };
+  Evaporate.prototype._resumeOne = function (id) {
+    var file = this.pendingFiles[id],
+        promises = [];
+    if (typeof file === 'undefined') {
+      promises.push(Promise.reject('Cannot pause a file that does not exist.'));
+    } else if (PAUSED_STATUSES.indexOf(file.status) === -1) {
+      promises.push(Promise.reject('Cannot resume a file that has not been paused.'));
