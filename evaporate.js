@@ -247,3 +247,59 @@
             info: function () {},
             warn: function () {},
             error: function () {},
+            beforeSigner: undefined,
+            xAmzHeadersAtInitiate: {},
+            notSignedHeadersAtInitiate: {},
+            xAmzHeadersCommon: null,
+            xAmzHeadersAtUpload: {},
+            xAmzHeadersAtComplete: {}
+          }, file, {
+            status: PENDING,
+            priority: 0,
+            loadedBytes: 0,
+            sizeBytes: file.file.size,
+            eTag: ''
+          }), fileConfig, self),
+          fileKey = fileUpload.id;
+
+      self.pendingFiles[fileKey] = fileUpload;
+
+      self.queueFile(fileUpload);
+
+      // Resolve or reject the Add promise based on how the fileUpload completes
+      fileUpload.deferredCompletion.promise
+          .then(
+              function () {
+                self.fileCleanup(fileUpload);
+                resolve(decodeURIComponent(fileUpload.name));
+              },
+              function (reason) {
+                self.fileCleanup(fileUpload);
+                reject(reason);
+              }
+          );
+    })
+  };
+  Evaporate.prototype.cancel = function (id) {
+    return typeof id === 'undefined' ? this._cancelAll() : this._cancelOne(id);
+  };
+  Evaporate.prototype._cancelAll = function () {
+    l.d('Canceling all file uploads');
+    var promises = [];
+    for (var key in this.pendingFiles) {
+      if (this.pendingFiles.hasOwnProperty(key)) {
+        var file = this.pendingFiles[key];
+        if (ACTIVE_STATUSES.indexOf(file.status) > -1) {
+          promises.push(file.stop());
+        }
+      }
+    }
+    if (!promises.length) {
+      promises.push(Promise.reject('No files to cancel.'));
+    }
+    return Promise.all(promises);
+  };
+  Evaporate.prototype._cancelOne = function (id) {
+    var promise = [];
+    if (this.pendingFiles[id]) {
+      promise.push(this.pendingFiles[id].stop());
