@@ -189,3 +189,61 @@
       this.evaporatingCnt(+1);
       fileUpload.start();
     } else {
+      // Add the file back to the stack, it's not ready
+      l.d('Requeued', decodeURIComponent(fileUpload.name), 'status:', fileUpload.status, 'reason:', reason);
+      this.queuedFiles.push(fileUpload);
+    }
+  };
+  Evaporate.prototype.fileCleanup = function (fileUpload) {
+    removeAtIndex(this.queuedFiles, fileUpload);
+    if (removeAtIndex(this.filesInProcess, fileUpload)) {
+      this.evaporatingCnt(-1);
+    }
+    fileUpload.done();
+    this.consumeRemainingSlots();
+  };
+  Evaporate.prototype.queueFile = function (fileUpload) {
+    this.filesInProcess.push(fileUpload);
+    this.queuedFiles.push(fileUpload);
+    if (this.filesInProcess.length === 1) {
+      this.startNextFile('first file');
+    }
+  };
+  Evaporate.prototype.add = function (file,  pConfig) {
+    var self = this,
+        fileConfig;
+    return new Promise(function (resolve, reject) {
+      var c = extend(pConfig, {});
+
+      IMMUTABLE_OPTIONS.forEach(function (a) { delete c[a]; });
+
+      fileConfig = extend(self.config, c);
+
+      if (typeof file === 'undefined' || typeof file.file === 'undefined') {
+        return reject('Missing file');
+      }
+      if (fileConfig.maxFileSize && file.file.size > fileConfig.maxFileSize) {
+        return reject('File size too large. Maximum size allowed is ' + readableFileSize(fileConfig.maxFileSize));
+      }
+      if (typeof file.name === 'undefined') {
+        return reject('Missing attribute: name');
+      }
+
+      if (fileConfig.encodeFilename) {
+        // correctly encode to an S3 object name, considering '/' and ' '
+        file.name = s3EncodedObjectName(file.name);
+      }
+
+      var fileUpload = new FileUpload(extend({
+            started: function () {},
+            uploadInitiated: function () {},
+            progress: function () {},
+            complete: function () {},
+            cancelled: function () {},
+            paused: function () {},
+            resumed: function () {},
+            pausing: function () {},
+            nameChanged: function () {},
+            info: function () {},
+            warn: function () {},
+            error: function () {},
