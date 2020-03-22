@@ -366,3 +366,74 @@
       promises.push(Promise.reject('Cannot pause a file that does not exist.'));
     } else if (PAUSED_STATUSES.indexOf(file.status) === -1) {
       promises.push(Promise.reject('Cannot resume a file that has not been paused.'));
+    } else {
+      this.resumeFile(file);
+    }
+    return Promise.all(promises);
+  };
+  Evaporate.prototype.resumeFile = function (fileUpload) {
+    fileUpload.resume();
+    this.queueFile(fileUpload);
+  };
+  Evaporate.prototype.forceRetry = function () {};
+  Evaporate.prototype.consumeRemainingSlots = function () {
+    var avail = this.config.maxConcurrentParts - this.evaporatingCount;
+    if (!avail) { return; }
+    for (var i = 0; i < this.filesInProcess.length; i++) {
+      var file = this.filesInProcess[i];
+      var consumed = file.consumeSlots();
+      if (consumed < 0) { continue; }
+      avail -= consumed;
+      if (!avail) { return; }
+    }
+  };
+  Evaporate.prototype.validateEvaporateOptions = function () {
+    this.supported = !(
+    typeof File === 'undefined' ||
+    typeof Promise === 'undefined');
+
+    if (!this.supported) {
+      return 'Evaporate requires support for File and Promise';
+    }
+
+    if (this.config.readableStreams) {
+      if (typeof this.config.readableStreamPartMethod !== 'function') {
+        return "Option readableStreamPartMethod is required when readableStreams is set."
+      }
+    } else  {
+      if (typeof Blob === 'undefined' || typeof (
+          Blob.prototype.webkitSlice ||
+          Blob.prototype.mozSlice ||
+          Blob.prototype.slice) === 'undefined') {
+        return 'Evaporate requires support for Blob [webkitSlice || mozSlice || slice]';
+      }
+    }
+
+    if (!this.config.signerUrl && typeof this.config.customAuthMethod !== 'function') {
+      return "Option signerUrl is required unless customAuthMethod is present.";
+    }
+
+    if (!this.config.bucket) {
+      return "The AWS 'bucket' option must be present.";
+    }
+
+    if (this.config.computeContentMd5) {
+      this.supported = typeof FileReader.prototype.readAsArrayBuffer !== 'undefined';
+      if (!this.supported) {
+        return 'The browser\'s FileReader object does not support readAsArrayBuffer';
+      }
+
+      if (typeof this.config.cryptoMd5Method !== 'function') {
+        return 'Option computeContentMd5 has been set but cryptoMd5Method is not defined.'
+      }
+
+      if (this.config.awsSignatureVersion === '4') {
+        if (typeof this.config.cryptoHexEncodedHash256 !== 'function') {
+          return 'Option awsSignatureVersion is 4 but cryptoHexEncodedHash256 is not defined.';
+        }
+      }
+    } else if (this.config.awsSignatureVersion === '4') {
+      return 'Option awsSignatureVersion is 4 but computeContentMd5 is not enabled.';
+    }
+    return true;
+  };
