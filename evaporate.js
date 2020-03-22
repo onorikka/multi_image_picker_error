@@ -495,3 +495,61 @@
         totalUploaded: 0,
         remainingSize: this.sizeBytes,
         secondsLeft: -1,
+        fileSize: this.sizeBytes,
+      };
+    }
+
+    this.totalUploaded += this.loaded;
+    var delta = (new Date() - this.startTime) / 1000,
+        avgSpeed = this.totalUploaded / delta,
+        remainingSize = this.sizeBytes - this.fileTotalBytesUploaded,
+        stats = {
+          speed: avgSpeed,
+          readableSpeed: readableFileSize(avgSpeed),
+          loaded: this.loaded,
+          totalUploaded: this.fileTotalBytesUploaded,
+          remainingSize: remainingSize,
+          secondsLeft: -1,
+          fileSize: this.sizeBytes,
+
+        };
+
+    if (avgSpeed > 0) {
+      stats.secondsLeft = Math.round(remainingSize / avgSpeed);
+    }
+
+    return stats;
+  };
+  FileUpload.prototype.onProgress = function () {
+    if ([ABORTED, PAUSED].indexOf(this.status) === -1) {
+      this.progress(this.fileTotalBytesUploaded / this.sizeBytes, this.progessStats());
+      this.loaded = 0;
+    }
+  };
+  FileUpload.prototype.startMonitor = function () {
+    clearInterval(this.progressInterval);
+    this.startTime = new Date();
+    this.loaded = 0;
+    this.totalUploaded = 0;
+    this.onProgress();
+    this.progressInterval = setInterval(this.onProgress.bind(this), this.con.progressIntervalMS);
+  };
+  FileUpload.prototype.stopMonitor = function () {
+    clearInterval(this.progressInterval);
+  };
+
+  // Evaporate proxies
+  FileUpload.prototype.startNextFile = function (reason) {
+    this.evaporate.startNextFile(reason);
+  };
+  FileUpload.prototype.evaporatingCnt = function (incr) {
+    this.evaporate.evaporatingCnt(incr);
+  };
+  FileUpload.prototype.consumeRemainingSlots = function () {
+    this.evaporate.consumeRemainingSlots();
+  };
+  FileUpload.prototype.getRemainingSlots = function () {
+    var evapCount = this.evaporate.evaporatingCount;
+    if (!this.partsInProcess.length && evapCount > 0) {
+      // we can use our file slot
+      evapCount -= 1;
