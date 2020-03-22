@@ -437,3 +437,61 @@
     }
     return true;
   };
+  Evaporate.prototype.evaporatingCnt = function (incr) {
+    this.evaporatingCount = Math.max(0, this.evaporatingCount + incr);
+    this.config.evaporateChanged(this, this.evaporatingCount);
+  };
+
+
+  function FileUpload(file, con, evaporate) {
+    this.fileTotalBytesUploaded = 0;
+    this.s3Parts = [];
+    this.partsOnS3 = [];
+    this.partsInProcess = [];
+    this.partsToUpload = [];
+    this.numParts = -1;
+    this.con = extend({}, con);
+    this.evaporate = evaporate;
+    this.localTimeOffset = evaporate.localTimeOffset;
+    this.deferredCompletion = defer();
+
+    extend(this, file);
+
+    this.id = decodeURIComponent(this.con.bucket + '/' + this.name);
+
+    this.signParams = con.signParams;
+  }
+  FileUpload.prototype.con = undefined;
+  FileUpload.prototype.evaporate = undefined;
+  FileUpload.prototype.localTimeOffset = 0;
+  FileUpload.prototype.id = undefined;
+  FileUpload.prototype.status = PENDING;
+  FileUpload.prototype.numParts = -1;
+  FileUpload.prototype.fileTotalBytesUploaded = 0;
+  FileUpload.prototype.partsInProcess = [];
+  FileUpload.prototype.partsToUpload = [];
+  FileUpload.prototype.s3Parts = [];
+  FileUpload.prototype.partsOnS3 = [];
+  FileUpload.prototype.deferredCompletion = undefined;
+  FileUpload.prototype.abortedByUser = false;
+
+  // Progress and Stats
+  FileUpload.prototype.progressInterval = undefined;
+  FileUpload.prototype.startTime = undefined;
+  FileUpload.prototype.loaded = 0;
+  FileUpload.prototype.totalUploaded = 0;
+  FileUpload.prototype.updateLoaded = function (loadedNow) {
+    this.loaded += loadedNow;
+    this.fileTotalBytesUploaded += loadedNow;
+  };
+  FileUpload.prototype.progessStats = function () {
+    // Adapted from https://github.com/fkjaekel
+    // https://github.com/TTLabs/EvaporateJS/issues/13
+    if (this.fileTotalBytesUploaded === 0) {
+      return {
+        speed: 0,
+        readableSpeed: "",
+        loaded: 0,
+        totalUploaded: 0,
+        remainingSize: this.sizeBytes,
+        secondsLeft: -1,
