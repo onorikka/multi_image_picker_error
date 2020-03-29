@@ -553,3 +553,76 @@
     if (!this.partsInProcess.length && evapCount > 0) {
       // we can use our file slot
       evapCount -= 1;
+    }
+    return this.con.maxConcurrentParts - evapCount;
+  };
+
+  FileUpload.prototype.lastPartSatisfied = Promise.resolve('onStart');
+
+  FileUpload.prototype.start = function () {
+    this.status = EVAPORATING;
+    this.startMonitor();
+    this.started(this.id);
+
+    if (this.uploadId) {
+      l.d('resuming FileUpload ', this.id);
+      return this.consumeSlots();
+    }
+
+    var awsKey = this.name;
+
+    this.getUnfinishedFileUpload();
+
+    var existenceOptimized = this.con.computeContentMd5 &&
+            this.con.allowS3ExistenceOptimization &&
+            typeof this.firstMd5Digest !== 'undefined' &&
+            typeof this.eTag !== 'undefined';
+
+        if (this.uploadId) {
+          if (existenceOptimized) {
+            return this.reuseS3Object(awsKey)
+                .then(this.deferredCompletion.resolve)
+                .catch(this.uploadFileFromScratch.bind(this));
+          }
+
+          this.resumeInterruptedUpload()
+              .then(this._uploadComplete.bind(this))
+              .catch(this.uploadFileFromScratch.bind(this));
+        } else {
+          this.uploadFileFromScratch("");
+        }
+  };
+  FileUpload.prototype.uploadFileFromScratch = function (reason) {
+    if (ACTIVE_STATUSES.indexOf(this.status) === -1) { return; }
+    l.d(reason);
+    this.uploadId = undefined;
+    return this.uploadFile(this.name)
+        .then(this._uploadComplete.bind(this))
+        .catch(this._abortUpload.bind(this));
+  };
+  FileUpload.prototype._uploadComplete = function () {
+    this.completeUpload().then(this.deferredCompletion.resolve);
+  };
+  FileUpload.prototype.stop = function () {
+    l.d('stopping FileUpload ', this.id);
+    this.setStatus(CANCELED);
+    this.info('Canceling uploads...');
+    this.abortedByUser = true;
+    var self = this;
+    return this.abortUpload()
+        .then(function () {
+          throw("User aborted the upload");
+        })
+        .catch(function (reason) {
+          self.deferredCompletion.reject(reason);
+        });
+  };
+  FileUpload.prototype.pause = function (force) {
+    l.d('pausing FileUpload, force:', !!force, this.id);
+    var promises = [];
+    this.info('Pausing uploads...');
+    this.status = PAUSING;
+    if (force) {
+      this.abortParts(true);
+    } else {
+      promises = this.partsInProcess.map(function (p) {
