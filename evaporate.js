@@ -626,3 +626,66 @@
       this.abortParts(true);
     } else {
       promises = this.partsInProcess.map(function (p) {
+        return this.s3Parts[p].awsRequest.awsDeferred.promise
+      }, this);
+      this.pausing();
+    }
+    return Promise.all(promises)
+        .then(function () {
+          this.stopMonitor();
+          this.status = PAUSED;
+          this.startNextFile('pause');
+          this.paused();
+        }.bind(this));
+  };
+  FileUpload.prototype.resume = function () {
+    this.status = PENDING;
+    this.resumed();
+  };
+  FileUpload.prototype.done = function () {
+    clearInterval(this.progressInterval);
+    this.startNextFile('file done');
+    this.partsOnS3 = [];
+    this.s3Parts = [];
+  };
+  FileUpload.prototype._startCompleteUpload = function (callComplete) {
+    return function () {
+      var promise = callComplete ? this.completeUpload() : Promise.resolve();
+      promise.then(this.deferredCompletion.resolve.bind(this));
+    }
+  };
+  FileUpload.prototype._abortUpload = function () {
+    if (!this.abortedByUser) {
+      var self = this;
+      this.abortUpload()
+          .then(
+              function () { self.deferredCompletion.reject('File upload aborted due to a part failing to upload'); },
+              this.deferredCompletion.reject.bind(this));
+    }
+  };
+
+  FileUpload.prototype.abortParts = function (pause) {
+    var self = this;
+    var toAbort = this.partsInProcess.slice(0);
+    toAbort.forEach(function (i) {
+      var s3Part = self.s3Parts[i];
+      if (s3Part) {
+        s3Part.awsRequest.abort();
+        if (pause) { s3Part.status = PENDING; }
+        removeAtIndex(self.partsInProcess, s3Part.partNumber);
+        if (self.partsToUpload.length) { self.evaporatingCnt(-1); }
+      }
+    });
+  };
+  FileUpload.prototype.makeParts = function (firstPart) {
+    this.numParts = Math.ceil(this.sizeBytes / this.con.partSize) || 1; // issue #58
+    var partsDeferredPromises = [];
+
+    var self = this;
+
+    function cleanUpAfterPart(s3Part) {
+      removeAtIndex(self.partsToUpload, s3Part.partNumber);
+      removeAtIndex(self.partsInProcess, s3Part.partNumber);
+
+      if (self.partsToUpload.length) { self.evaporatingCnt(-1); }
+    }
