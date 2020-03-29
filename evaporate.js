@@ -689,3 +689,56 @@
 
       if (self.partsToUpload.length) { self.evaporatingCnt(-1); }
     }
+
+    function resolve(s3Part) { return function () {
+      cleanUpAfterPart(s3Part);
+      if (self.partsToUpload.length) { self.consumeRemainingSlots(); }
+      if (self.partsToUpload.length < self.con.maxConcurrentParts) {
+        self.startNextFile('part resolve');
+      }
+    };
+    }
+    function reject(s3Part) { return function () {
+      cleanUpAfterPart(s3Part);
+    };
+    }
+
+    var limit = firstPart ? 1 : this.numParts;
+
+    for (var part = 1; part <= limit; part++) {
+      var s3Part = this.s3Parts[part];
+      if (typeof s3Part !== "undefined"){
+        if(s3Part.status === COMPLETE) { continue; }
+      } else {
+        s3Part = this.makePart(part, PENDING, this.sizeBytes);
+      }
+      s3Part.awsRequest = new PutPart(this, s3Part);
+      s3Part.awsRequest.awsDeferred.promise
+          .then(resolve(s3Part), reject(s3Part));
+
+      this.partsToUpload.push(part);
+      partsDeferredPromises.push(this.s3Parts[part].awsRequest.awsDeferred.promise);
+    }
+
+    return partsDeferredPromises;
+  };
+  FileUpload.prototype.makePart = function (partNumber, status, size) {
+    var s3Part = {
+      status: status,
+      loadedBytes: 0,
+      loadedBytesPrevious: null,
+      isEmpty: (size === 0), // issue #58
+      md5_digest: null,
+      partNumber: partNumber
+    };
+
+    this.s3Parts[partNumber] = s3Part;
+
+    return s3Part;
+  };
+  FileUpload.prototype.setStatus = function (s) {
+    this.status = s;
+  };
+
+  FileUpload.prototype.createUploadFile = function () {
+    if (this.status === ABORTED) { return; }
