@@ -742,3 +742,67 @@
 
   FileUpload.prototype.createUploadFile = function () {
     if (this.status === ABORTED) { return; }
+    var fileKey = uploadKey(this),
+        newUpload = {
+          awsKey: this.name,
+          bucket: this.con.bucket,
+          uploadId: this.uploadId,
+          fileSize: this.sizeBytes,
+          fileType: this.file.type,
+          lastModifiedDate: dateISOString(this.file.lastModified),
+          partSize: this.con.partSize,
+          signParams: this.con.signParams,
+          createdAt: new Date().toISOString()
+        };
+    saveUpload(fileKey, newUpload);
+  };
+  FileUpload.prototype.updateUploadFile = function (updates) {
+    var fileKey = uploadKey(this),
+        uploads = getSavedUploads(),
+        upload = extend({}, uploads[fileKey], updates);
+    saveUpload(fileKey, upload);
+  };
+  FileUpload.prototype.completeUploadFile = function (xhr) {
+    var uploads = getSavedUploads(),
+        upload = uploads[uploadKey(this)];
+
+    if (typeof upload !== 'undefined') {
+      upload.completedAt = new Date().toISOString();
+      upload.eTag = this.eTag;
+      upload.firstMd5Digest = this.firstMd5Digest;
+      uploads[uploadKey(this)] = upload;
+      historyCache.setItem('awsUploads', JSON.stringify(uploads));
+    }
+
+    this.complete(xhr, this.name, this.progessStats());
+    this.setStatus(COMPLETE);
+    this.onProgress();
+  };
+  FileUpload.prototype.removeUploadFile = function (){
+    if (typeof this.file !== 'undefined') {
+      removeUpload(uploadKey(this));
+    }
+  };
+  FileUpload.prototype.getUnfinishedFileUpload = function () {
+    var savedUploads = getSavedUploads(true),
+        u = savedUploads[uploadKey(this)];
+
+    if (this.canRetryUpload(u)) {
+      this.uploadId = u.uploadId;
+      this.name = u.awsKey;
+      this.eTag = u.eTag;
+      this.firstMd5Digest = u.firstMd5Digest;
+      this.signParams = u.signParams;
+    }
+  };
+  FileUpload.prototype.canRetryUpload = function (u) {
+    // Must be the same file name, file size, last_modified, file type as previous upload
+    if (typeof u === 'undefined') {
+      return false;
+    }
+    var completedAt = new Date(u.completedAt || FAR_FUTURE);
+
+    // check that the part sizes and bucket match, and if the file name of the upload
+    // matches if onlyRetryForSameFileName is true
+    return this.con.partSize === u.partSize &&
+        completedAt > HOURS_AGO &&
