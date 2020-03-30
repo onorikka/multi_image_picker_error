@@ -806,3 +806,74 @@
     // matches if onlyRetryForSameFileName is true
     return this.con.partSize === u.partSize &&
         completedAt > HOURS_AGO &&
+        this.con.bucket === u.bucket &&
+        (this.con.onlyRetryForSameFileName ? this.name === u.awsKey : true);
+  };
+
+  FileUpload.prototype.partSuccess = function (eTag, putRequest) {
+    var part = putRequest.part;
+    l.d(putRequest.request.step, 'ETag:', eTag);
+    if (part.isEmpty || (eTag !== ETAG_OF_0_LENGTH_BLOB)) { // issue #58
+      part.eTag = eTag;
+      part.status = COMPLETE;
+      this.partsOnS3.push(part);
+      return true;
+    } else {
+      part.status = ERROR;
+      putRequest.resetLoadedBytes();
+      var msg = ['eTag matches MD5 of 0 length blob for part #', putRequest.partNumber, 'Retrying part.'].join(" ");
+      l.w(msg);
+      this.warn(msg);
+    }
+  };
+  FileUpload.prototype.listPartsSuccess = function (listPartsRequest, partsXml) {
+    this.info('uploadId', this.uploadId, 'is not complete. Fetching parts from part marker', listPartsRequest.partNumberMarker);
+    partsXml = partsXml.replace(/(\r\n|\n|\r)/gm, ""); // strip line breaks to ease the regex requirements
+    var partRegex = /<Part>(.+?)<\/Part\>/g;
+
+    while (true) {
+      var cp = (partRegex.exec(partsXml) || [])[1];
+      if (!cp) { break; }
+
+      var partSize = parseInt(elementText(cp, "Size"), 10);
+      this.fileTotalBytesUploaded += partSize;
+      this.partsOnS3.push({
+        eTag: elementText(cp, "ETag").replace(/&quot;/g, '"'),
+        partNumber: parseInt(elementText(cp, "PartNumber"), 10),
+        size: partSize,
+        LastModified: elementText(cp, "LastModified")
+      });
+    }
+    return elementText(partsXml, "IsTruncated") === 'true' ? elementText(partsXml, "NextPartNumberMarker") : undefined;
+  };
+  FileUpload.prototype.makePartsfromPartsOnS3 = function () {
+    if (ACTIVE_STATUSES.indexOf(this.status) === -1) { return; }
+    this.nameChanged(this.name);
+    this.partsOnS3.forEach(function (cp) {
+      var uploadedPart = this.makePart(cp.partNumber, COMPLETE, cp.size);
+      uploadedPart.eTag = cp.eTag;
+      uploadedPart.loadedBytes = cp.size;
+      uploadedPart.loadedBytesPrevious = cp.size;
+      uploadedPart.finishedUploadingAt = cp.LastModified;
+    }.bind(this));
+  };
+  FileUpload.prototype.completeUpload = function () {
+    var self = this;
+    return new CompleteMultipartUpload(this)
+        .send()
+        .then(
+            function (xhr) {
+              self.eTag = elementText(xhr.responseText, "ETag").replace(/&quot;/g, '"');
+              self.completeUploadFile(xhr);
+            });
+  };
+  FileUpload.prototype.getCompletedPayload = function () {
+    var completeDoc = [];
+    completeDoc.push('<CompleteMultipartUpload>');
+    this.s3Parts.forEach(function (part, partNumber) {
+      if (partNumber > 0) {
+        ['<Part><PartNumber>', partNumber, '</PartNumber><ETag>', part.eTag, '</ETag></Part>']
+            .forEach(function (a) { completeDoc.push(a); });
+      }
+    });
+    completeDoc.push('</CompleteMultipartUpload>');
