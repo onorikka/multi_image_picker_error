@@ -877,3 +877,56 @@
       }
     });
     completeDoc.push('</CompleteMultipartUpload>');
+
+    return completeDoc.join("");
+  };
+  FileUpload.prototype.consumeSlots = function () {
+    if (this.partsToUpload.length === 0) { return -1 }
+    if (this.partsToUpload.length !== this.partsInProcess.length &&
+        this.status === EVAPORATING) {
+
+      var partsToUpload = Math.min(this.getRemainingSlots(), this.partsToUpload.length);
+
+      if (!partsToUpload) { return -1; }
+
+      var satisfied = 0;
+      for (var i = 0; i < this.partsToUpload.length; i++) {
+        var s3Part = this.s3Parts[this.partsToUpload[i]];
+
+        if (s3Part.status === EVAPORATING) { continue; }
+
+        if (this.canStartPart(s3Part)) {
+          if (this.partsInProcess.length && this.partsToUpload.length > 1) {
+            this.evaporatingCnt(+1);
+          }
+          this.partsInProcess.push(s3Part.partNumber);
+          var awsRequest = s3Part.awsRequest;
+          this.lastPartSatisfied.then(awsRequest.delaySend.bind(awsRequest));
+          this.lastPartSatisfied = awsRequest.getStartedPromise();
+        } else { continue; }
+
+        satisfied += 1;
+
+        if (satisfied === partsToUpload) { break; }
+
+      }
+      var allInProcess = this.partsToUpload.length === this.partsInProcess.length,
+          remainingSlots = this.getRemainingSlots();
+      if (allInProcess && remainingSlots > 0) {
+        // We don't need any more slots...
+        this.startNextFile('consume slots');
+      }
+      return remainingSlots;
+    }
+    return 0;
+  };
+  FileUpload.prototype.canStartPart = function (part) {
+    return this.partsInProcess.indexOf(part.partNumber) === -1 && !part.awsRequest.errorExceptionStatus();
+  };
+  FileUpload.prototype.uploadFile = function (awsKey) {
+    this.removeUploadFile();
+    var self = this;
+    return new InitiateMultipartUpload(self, awsKey)
+        .send()
+        .then(
+            function () {
