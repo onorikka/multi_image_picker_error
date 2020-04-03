@@ -930,3 +930,65 @@
         .send()
         .then(
             function () {
+              self.uploadInitiated(self.uploadId);
+              self.partsToUpload = [];
+              return self.uploadParts()
+                  .then(
+                      function () {},
+                      function (reason) {
+                        throw(reason);
+                      })
+            });
+  };
+  FileUpload.prototype.uploadParts = function () {
+    this.loaded = 0;
+    this.totalUploaded = 0;
+    if (ACTIVE_STATUSES.indexOf(this.status) === -1) {
+      return Promise.reject('Part uploading stopped because the file was canceled');
+    }
+    var promises = this.makeParts();
+    this.setStatus(EVAPORATING);
+    this.startTime = new Date();
+    this.consumeSlots();
+    return Promise.all(promises);
+  };
+  FileUpload.prototype.abortUpload = function () {
+    return new Promise(function (resolve, reject) {
+
+      if(typeof this.uploadId === 'undefined') {
+        resolve();
+        return;
+      }
+
+      new DeleteMultipartUpload(this)
+          .send()
+          .then(resolve, reject);
+    }.bind(this))
+        .then(
+            function () {
+              this.setStatus(ABORTED);
+              this.cancelled();
+              this.removeUploadFile();
+            }.bind(this),
+            this.deferredCompletion.reject.bind(this));
+  };
+  FileUpload.prototype.resumeInterruptedUpload = function () {
+    return new ResumeInterruptedUpload(this)
+        .send()
+        .then(this.uploadParts.bind(this));
+  };
+  FileUpload.prototype.reuseS3Object = function (awsKey) {
+    var self = this;
+    // Attempt to reuse entire uploaded object on S3
+    this.makeParts(1);
+    this.partsToUpload = [];
+    var firstS3Part = this.s3Parts[1];
+    function reject(reason) {
+      self.name = awsKey;
+      throw(reason);
+    }
+    return firstS3Part.awsRequest.getPartMd5Digest()
+        .then(function () {
+          if (self.firstMd5Digest === firstS3Part.md5_digest) {
+            return new ReuseS3Object(self, awsKey)
+                .send()
