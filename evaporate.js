@@ -992,3 +992,62 @@
           if (self.firstMd5Digest === firstS3Part.md5_digest) {
             return new ReuseS3Object(self, awsKey)
                 .send()
+                .then(
+                    function (xhr) {
+                      l.d('headObject found matching object on S3.');
+                      self.completeUploadFile(xhr);
+                      self.nameChanged(self.name);
+                    })
+                .catch(reject);
+
+          } else {
+            var msg = self.con.allowS3ExistenceOptimization ? 'File\'s first part MD5 digest does not match what was stored.' : 'allowS3ExistenceOptimization is not enabled.';
+            reject(msg);
+          }
+        });
+  };
+
+
+  function SignedS3AWSRequest(fileUpload, request) {
+    this.fileUpload = fileUpload;
+    this.con = fileUpload.con;
+    this.attempts = 1;
+    this.localTimeOffset = this.fileUpload.localTimeOffset;
+    this.awsDeferred = defer();
+    this.started = defer();
+
+    this.awsUrl = awsUrl(this.con);
+    this.awsHost = uri(this.awsUrl).host;
+
+    var r = extend({}, request);
+    if (fileUpload.contentType) {
+      r.contentType = fileUpload.contentType;
+    }
+
+    this.updateRequest(r);
+  }
+  SignedS3AWSRequest.prototype.fileUpload = undefined;
+  SignedS3AWSRequest.prototype.con = undefined;
+  SignedS3AWSRequest.prototype.awsUrl = undefined;
+  SignedS3AWSRequest.prototype.awsHost = undefined;
+  SignedS3AWSRequest.prototype.authorize = function () {};
+  SignedS3AWSRequest.prototype.localTimeOffset = 0;
+  SignedS3AWSRequest.prototype.awsDeferred = undefined;
+  SignedS3AWSRequest.prototype.started = undefined;
+  SignedS3AWSRequest.prototype.getPath = function () {
+    var path = '/' + this.con.bucket + '/' + this.fileUpload.name;
+    if (this.con.cloudfront || this.awsUrl.indexOf('cloudfront') > -1) {
+      path = '/' + this.fileUpload.name;
+    }
+    return path;
+  };
+
+  SignedS3AWSRequest.prototype.updateRequest = function (request) {
+    this.request = request;
+    var SigningClass = signingVersion(this, l);
+    this.signer = new SigningClass(request);
+  };
+  SignedS3AWSRequest.prototype.success = function () { this.awsDeferred.resolve(this.currentXhr); };
+  SignedS3AWSRequest.prototype.backOffWait = function () {
+    return (this.attempts === 1) ? 0 : 1000 * Math.min(
+            this.con.maxRetryBackoffSecs,
