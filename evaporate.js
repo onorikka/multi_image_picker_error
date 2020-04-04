@@ -1174,3 +1174,70 @@
   SignedS3AWSRequest.prototype.authorize = function () {
     this.request.dateString = this.signer.dateString(this.localTimeOffset);
     this.request.x_amz_headers = extend(this.request.x_amz_headers, {
+      'x-amz-date': this.request.dateString
+    });
+    return this.signer.getPayload()
+        .then(function () {
+          return authorizationMethod(this).authorize();
+        }.bind(this));
+  };
+  SignedS3AWSRequest.prototype.authorizationSuccess = function (authorization) {
+    l.d(this.request.step, 'signature:', authorization);
+    this.request.auth = authorization;
+  };
+  SignedS3AWSRequest.prototype.trySend = function () {
+    var self = this;
+    return this.authorize()
+        .then(
+            function (value) {
+              self.authorizationSuccess(value);
+              if (self.fileUpload.status === ABORTED) { return; }
+              self.sendRequestToAWS().then(self.success.bind(self), self.error.bind(self));
+            },
+            self.error.bind(self));
+  };
+  SignedS3AWSRequest.prototype.send = function () {
+    this.trySend();
+    return this.awsDeferred.promise;
+  };
+
+  function CancelableS3AWSRequest(fileUpload, request) {
+    SignedS3AWSRequest.call(this, fileUpload, request);
+  }
+  CancelableS3AWSRequest.prototype = Object.create(SignedS3AWSRequest.prototype);
+  CancelableS3AWSRequest.prototype.constructor = CancelableS3AWSRequest;
+  CancelableS3AWSRequest.prototype.errorExceptionStatus = function () {
+    return [ABORTED, CANCELED].indexOf(this.fileUpload.status) > -1;
+  };
+
+  function SignedS3AWSRequestWithRetryLimit(fileUpload, request, maxRetries) {
+    if (maxRetries > -1) {
+      this.maxRetries = maxRetries;
+    }
+    SignedS3AWSRequest.call(this, fileUpload, request);
+  }
+  SignedS3AWSRequestWithRetryLimit.prototype = Object.create(CancelableS3AWSRequest.prototype);
+  SignedS3AWSRequestWithRetryLimit.prototype.constructor = SignedS3AWSRequestWithRetryLimit;
+  SignedS3AWSRequestWithRetryLimit.prototype.maxRetries = 1;
+  SignedS3AWSRequestWithRetryLimit.prototype.errorHandler =  function (reason) {
+    if (this.attempts > this.maxRetries) {
+      var msg = ['MaxRetries exceeded. Will re-upload file id ', this.fileUpload.id, ', ', reason].join("");
+      l.w(msg);
+      this.awsDeferred.reject(msg);
+      return true;
+    }
+  };
+  SignedS3AWSRequestWithRetryLimit.prototype.rejectedSuccess = function () {
+    var reason = Array.prototype.slice.call(arguments, 1).join("");
+    this.awsDeferred.reject(reason);
+    return false;
+  };
+
+  // see: http://docs.amazonwebservices.com/AmazonS3/latest/API/mpUploadInitiate.html
+  function InitiateMultipartUpload(fileUpload, awsKey) {
+    var request = {
+      method: 'POST',
+      path: '?uploads',
+      step: 'initiate',
+      x_amz_headers: fileUpload.xAmzHeadersAtInitiate,
+      not_signed_headers: fileUpload.notSignedHeadersAtInitiate,
