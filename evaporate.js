@@ -1114,3 +1114,63 @@
       }
       extend(all_headers, self.request.not_signed_headers);
       extend(all_headers, self.request.x_amz_headers);
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+
+          if (self.success_status(xhr)) {
+            if (self.request.response_match &&
+                xhr.response.match(new RegExp(self.request.response_match)) === undefined) {
+              reject('AWS response does not match set pattern: ' + self.request.response_match);
+            } else {
+              resolve();
+            }
+          } else {
+            var reason = xhr.responseText ? getAwsResponse(xhr) : ' ';
+            reason += 'status:' + xhr.status;
+            reject(reason);
+          }
+        }
+      };
+
+      xhr.open(self.request.method, url);
+      xhr.setRequestHeader('Authorization', self.signer.authorizationString());
+
+      for (var key in all_headers) {
+        if (all_headers.hasOwnProperty(key)) {
+          xhr.setRequestHeader(key, all_headers[key]);
+        }
+      }
+
+      self.signer.setHeaders(xhr);
+
+      if (self.request.contentType) {
+        xhr.setRequestHeader('Content-Type', self.request.contentType);
+      }
+
+      if (self.request.md5_digest) {
+        xhr.setRequestHeader('Content-MD5', self.request.md5_digest);
+      }
+      xhr.onerror = function (xhr) {
+        var reason = xhr.responseText ? getAwsResponse(xhr) : 'transport error';
+        reject(reason);
+      };
+
+      if (typeof self.request.onProgress === 'function') {
+        xhr.upload.onprogress = self.request.onProgress;
+      }
+
+      self.getPayload()
+          .then(xhr.send.bind(xhr), reject);
+
+      setTimeout(function () { // We have to delay here or Safari will hang
+        self.started.resolve('request sent ' + self.request.step);
+      }, 20);
+      self.signer.payload = null;
+      self.payloadPromise = undefined;
+    });
+  };
+  //see: http://docs.amazonwebservices.com/AmazonS3/latest/dev/RESTAuthentication.html#ConstructingTheAuthenticationHeader
+  SignedS3AWSRequest.prototype.authorize = function () {
+    this.request.dateString = this.signer.dateString(this.localTimeOffset);
+    this.request.x_amz_headers = extend(this.request.x_amz_headers, {
