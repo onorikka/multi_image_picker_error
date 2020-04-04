@@ -1051,3 +1051,66 @@
   SignedS3AWSRequest.prototype.backOffWait = function () {
     return (this.attempts === 1) ? 0 : 1000 * Math.min(
             this.con.maxRetryBackoffSecs,
+            Math.pow(this.con.retryBackoffPower, this.attempts - 2)
+        );
+  };
+  SignedS3AWSRequest.prototype.error =  function (reason) {
+    if (this.errorExceptionStatus()) {
+      return;
+    }
+
+    this.signer.error();
+    l.d(this.request.step, 'error:', this.fileUpload.id, reason);
+
+    if (typeof this.errorHandler(reason) !== 'undefined' ) {
+      return;
+    }
+
+    this.fileUpload.warn('Error in ', this.request.step, reason);
+    this.fileUpload.setStatus(ERROR);
+
+    var self = this,
+        backOffWait = this.backOffWait();
+    this.attempts += 1;
+
+    setTimeout(function () {
+      if (!self.errorExceptionStatus()) { self.trySend(); }
+    }, backOffWait);
+  };
+  SignedS3AWSRequest.prototype.errorHandler = function () { };
+  SignedS3AWSRequest.prototype.errorExceptionStatus = function () { return false; };
+  SignedS3AWSRequest.prototype.getPayload = function () { return Promise.resolve(null); };
+  SignedS3AWSRequest.prototype.success_status = function (xhr) {
+    return (xhr.status >= 200 && xhr.status <= 299) ||
+        this.request.success404 && xhr.status === 404;
+  };
+  SignedS3AWSRequest.prototype.stringToSign = function () {
+    return encodeURIComponent(this.signer.stringToSign());
+  };
+  SignedS3AWSRequest.prototype.canonicalRequest = function () {
+    return this.signer.canonicalRequest();
+  }
+  SignedS3AWSRequest.prototype.signResponse = function(payload, stringToSign, signatureDateTime) {
+    var self = this;
+    return new Promise(function (resolve) {
+      if (typeof self.con.signResponseHandler === 'function') {
+        return self.con.signResponseHandler(payload, stringToSign, signatureDateTime)
+            .then(resolve);
+      }
+      resolve(payload);
+    });
+  };
+  SignedS3AWSRequest.prototype.sendRequestToAWS = function () {
+    var self = this;
+    return new Promise( function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      self.currentXhr = xhr;
+
+      var url = [self.awsUrl, self.getPath(), self.request.path].join(""),
+          all_headers = {};
+
+      if (self.request.query_string) {
+        url += self.request.query_string;
+      }
+      extend(all_headers, self.request.not_signed_headers);
+      extend(all_headers, self.request.x_amz_headers);
