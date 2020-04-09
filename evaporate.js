@@ -1340,3 +1340,85 @@
     }
 
     var nextPartNumber = this.fileUpload.listPartsSuccess(this, this.currentXhr.responseText);
+    if (nextPartNumber) {
+      var request = this.setupRequest(nextPartNumber); // let's fetch the next set of parts
+      this.updateRequest(request);
+      this.trySend();
+    } else {
+      this.fileUpload.makePartsfromPartsOnS3();
+      this.awsDeferred.resolve(this.currentXhr);
+    }
+  };
+
+  //http://docs.aws.amazon.com/AmazonS3/latest/API/mpUploadUploadPart.html
+  function PutPart(fileUpload, part) {
+    this.part = part;
+
+    this.partNumber = part.partNumber;
+    this.start = (this.partNumber - 1) * fileUpload.con.partSize;
+    this.end = Math.min(this.partNumber * fileUpload.con.partSize, fileUpload.sizeBytes);
+
+    var request = {
+      method: 'PUT',
+      path: '?partNumber=' + this.partNumber + '&uploadId=' + fileUpload.uploadId,
+      step: 'upload #' + this.partNumber,
+      x_amz_headers: fileUpload.xAmzHeadersCommon || fileUpload.xAmzHeadersAtUpload,
+      contentSha256: "UNSIGNED-PAYLOAD",
+      onProgress: this.onProgress.bind(this)
+    };
+
+    SignedS3AWSRequest.call(this, fileUpload, request);
+  }
+  PutPart.prototype = Object.create(SignedS3AWSRequest.prototype);
+  PutPart.prototype.constructor = PutPart;
+  PutPart.prototype.part = 1;
+  PutPart.prototype.payloadPromise = undefined;
+  PutPart.prototype.start = 0;
+  PutPart.prototype.end = 0;
+  PutPart.prototype.partNumber = undefined;
+  PutPart.prototype.getPartMd5Digest = function () {
+    var self = this,
+        part = this.part;
+    return new Promise(function (resolve, reject) {
+      if (self.con.computeContentMd5 && !part.md5_digest) {
+        self.getPayload()
+            .then(function (data) {
+              var md5_digest = self.con.cryptoMd5Method(data);
+              if (self.partNumber === 1 && self.con.computeContentMd5 && typeof self.fileUpload.firstMd5Digest === "undefined") {
+                self.fileUpload.firstMd5Digest = md5_digest;
+                self.fileUpload.updateUploadFile({firstMd5Digest: md5_digest})
+              }
+              resolve(md5_digest);
+            }, reject);
+      } else {
+        resolve(part.md5_digest);
+      }
+    }).then(function (md5_digest) {
+      if (md5_digest) {
+        l.d(self.request.step, 'MD5 digest:', md5_digest);
+        self.request.md5_digest = md5_digest;
+        self.part.md5_digest = md5_digest;
+      }
+    });
+  };
+  PutPart.prototype.sendRequestToAWS = function () {
+    this.stalledInterval = setInterval(this.stalledPartMonitor(), PARTS_MONITOR_INTERVAL_MS);
+    this.stalledPartMonitor();
+    return SignedS3AWSRequest.prototype.sendRequestToAWS.call(this);
+  };
+  PutPart.prototype.send = function () {
+    if (this.part.status !== COMPLETE &&
+        [ABORTED, PAUSED, CANCELED].indexOf(this.fileUpload.status) === -1
+    ) {
+      l.d('uploadPart #', this.partNumber, this.attempts === 1 ? 'submitting' : 'retrying');
+
+      this.part.status = EVAPORATING;
+      this.attempts += 1;
+      this.part.loadedBytesPrevious = null;
+
+      var self = this;
+      return this.getPartMd5Digest()
+          .then(function () {
+            l.d('Sending', self.request.step);
+            SignedS3AWSRequest.prototype.send.call(self);
+          });
