@@ -1294,3 +1294,49 @@
   }
   ReuseS3Object.prototype = Object.create(SignedS3AWSRequestWithRetryLimit.prototype);
   ReuseS3Object.prototype.constructor = ReuseS3Object;
+  ReuseS3Object.prototype.awsKey = undefined;
+  ReuseS3Object.prototype.success = function () {
+    var eTag = this.currentXhr.getResponseHeader('Etag');
+    if (eTag !== this.fileUpload.eTag &&
+        !this.rejectedSuccess('uploadId ', this.fileUpload.id, ' found on S3 but the Etag doesn\'t match.')) { return; }
+    this.awsDeferred.resolve(this.currentXhr);
+  };
+
+  //http://docs.amazonwebservices.com/AmazonS3/latest/API/mpUploadListParts.html
+  function ResumeInterruptedUpload(fileUpload) {
+    SignedS3AWSRequestWithRetryLimit.call(this, fileUpload);
+    this.updateRequest(this.setupRequest(0));
+  }
+  ResumeInterruptedUpload.prototype = Object.create(SignedS3AWSRequestWithRetryLimit.prototype);
+  ResumeInterruptedUpload.prototype.constructor = ResumeInterruptedUpload;
+  ResumeInterruptedUpload.prototype.awsKey = undefined;
+  ResumeInterruptedUpload.prototype.partNumberMarker = 0;
+  ResumeInterruptedUpload.prototype.setupRequest = function (partNumberMarker) {
+    var msg = ['setupRequest() for uploadId:', this.fileUpload.uploadId, 'for part marker:', partNumberMarker].join(" ");
+    l.d(msg);
+
+    this.fileUpload.info(msg);
+
+    this.awsKey = this.fileUpload.name;
+    this.partNumberMarker = partNumberMarker;
+
+    var request = {
+      method: 'GET',
+      path: ['?uploadId=', this.fileUpload.uploadId].join(""),
+      query_string: "&part-number-marker=" + partNumberMarker,
+      x_amz_headers: this.fileUpload.xAmzHeadersCommon,
+      step: 'get upload parts',
+      success404: true
+    };
+
+    this.request = request;
+    return request;
+  };
+  ResumeInterruptedUpload.prototype.success = function () {
+    if (this.currentXhr.status === 404) {
+      // Success! Upload is no longer recognized, so there is nothing to fetch
+      if (this.rejectedSuccess('uploadId ', this.fileUpload.id, ' not found on S3.')) { this.awsDeferred.resolve(this.currentXhr); }
+      return;
+    }
+
+    var nextPartNumber = this.fileUpload.listPartsSuccess(this, this.currentXhr.responseText);
