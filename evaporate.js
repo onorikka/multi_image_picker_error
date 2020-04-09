@@ -1241,3 +1241,56 @@
       step: 'initiate',
       x_amz_headers: fileUpload.xAmzHeadersAtInitiate,
       not_signed_headers: fileUpload.notSignedHeadersAtInitiate,
+      response_match: '<UploadId>(.+)<\/UploadId>'
+    };
+
+    CancelableS3AWSRequest.call(this, fileUpload, request);
+    this.awsKey = awsKey;
+  }
+  InitiateMultipartUpload.prototype = Object.create(CancelableS3AWSRequest.prototype);
+  InitiateMultipartUpload.prototype.constructor = InitiateMultipartUpload;
+  InitiateMultipartUpload.prototype.success = function () {
+    var match = this.currentXhr.response.match(new RegExp(this.request.response_match));
+    this.fileUpload.uploadId = match[1];
+    this.fileUpload.awsKey = this.awsKey;
+    l.d('InitiateMultipartUpload ID is', this.fileUpload.uploadId);
+    this.fileUpload.createUploadFile();
+    this.awsDeferred.resolve(this.currentXhr);
+  };
+
+  //http://docs.amazonwebservices.com/AmazonS3/latest/API/mpUploadComplete.html
+  function CompleteMultipartUpload(fileUpload) {
+    fileUpload.info('will attempt to complete upload');
+    var request = {
+      method: 'POST',
+      contentType: 'application/xml; charset=UTF-8',
+      path: '?uploadId=' + fileUpload.uploadId,
+      x_amz_headers: fileUpload.xAmzHeadersCommon || fileUpload.xAmzHeadersAtComplete,
+      step: 'complete'
+    };
+    CancelableS3AWSRequest.call(this, fileUpload, request);
+  }
+  CompleteMultipartUpload.prototype = Object.create(CancelableS3AWSRequest.prototype);
+  CompleteMultipartUpload.prototype.constructor = CompleteMultipartUpload;
+  CompleteMultipartUpload.prototype.getPayload = function () {
+    return Promise.resolve(this.fileUpload.getCompletedPayload());
+  };
+
+  //http://docs.amazonwebservices.com/AmazonS3/latest/API/mpUploadComplete.html
+  function ReuseS3Object(fileUpload, awsKey) {
+    this.awsKey = awsKey;
+
+    fileUpload.info('will attempt to verify existence of the file');
+
+    var request = {
+      method: 'HEAD',
+      path: '',
+      x_amz_headers: fileUpload.xAmzHeadersCommon,
+      success404: true,
+      step: 'head_object'
+    };
+
+    SignedS3AWSRequestWithRetryLimit.call(this, fileUpload, request);
+  }
+  ReuseS3Object.prototype = Object.create(SignedS3AWSRequestWithRetryLimit.prototype);
+  ReuseS3Object.prototype.constructor = ReuseS3Object;
