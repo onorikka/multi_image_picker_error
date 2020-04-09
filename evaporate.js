@@ -1422,3 +1422,65 @@
             l.d('Sending', self.request.step);
             SignedS3AWSRequest.prototype.send.call(self);
           });
+    }
+  };
+  PutPart.prototype.success = function () {
+    clearInterval(this.stalledInterval);
+    var eTag = this.currentXhr.getResponseHeader('ETag');
+    this.currentXhr = null;
+    if (this.fileUpload.partSuccess(eTag, this)) { this.awsDeferred.resolve(this.currentXhr); }
+  };
+  PutPart.prototype.onProgress = function (evt) {
+    if (evt.loaded > 0) {
+      var loadedNow = evt.loaded - this.part.loadedBytes;
+      if (loadedNow) {
+        this.part.loadedBytes = evt.loaded;
+        this.fileUpload.updateLoaded(loadedNow);
+      }
+    }
+  };
+  PutPart.prototype.stalledPartMonitor = function () {
+    var lastLoaded = this.part.loadedBytes;
+    var self = this;
+    return function () {
+      clearInterval(self.stalledInterval);
+      if ([EVAPORATING, ERROR, PAUSING, PAUSED].indexOf(self.fileUpload.status) === -1 &&
+          self.part.status !== ABORTED &&
+          self.part.loadedBytes < this.size) {
+        if (lastLoaded === self.part.loadedBytes) {
+          l.w('Part stalled. Will abort and retry:', self.partNumber, decodeURIComponent(self.fileUpload.name));
+          self.abort();
+          if (!self.errorExceptionStatus()) {
+            self.delaySend();
+          }
+        } else {
+          self.stalledInterval = setInterval(self.stalledPartMonitor(), PARTS_MONITOR_INTERVAL_MS);
+        }
+      }
+    }
+  };
+  PutPart.prototype.resetLoadedBytes = function () {
+    this.fileUpload.updateLoaded(-this.part.loadedBytes);
+    this.part.loadedBytes = 0;
+    this.fileUpload.onProgress();
+  };
+  PutPart.prototype.errorExceptionStatus = function () {
+    return [CANCELED, ABORTED, PAUSED, PAUSING].indexOf(this.fileUpload.status) > -1;
+  };
+  PutPart.prototype.delaySend = function () {
+    var backOffWait = this.backOffWait();
+    this.attempts += 1;
+    setTimeout(this.send.bind(this), backOffWait);
+  };
+  PutPart.prototype.errorHandler = function (reason) {
+    clearInterval(this.stalledInterval);
+    var message = reason instanceof Error ? reason.message : (typeof reason === 'string' ? reason : reason.toString())
+
+    if (message.match(/status:404/)) {
+      var errMsg = '404 error on part PUT. The part and the file will abort. ' + message;
+      l.w(errMsg);
+      this.fileUpload.error(errMsg);
+      this.part.status = ABORTED;
+      this.awsDeferred.reject(errMsg);
+      return true;
+    }
