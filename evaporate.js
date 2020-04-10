@@ -1484,3 +1484,49 @@
       this.awsDeferred.reject(errMsg);
       return true;
     }
+    this.resetLoadedBytes();
+    this.part.status = ERROR;
+
+    if (!this.errorExceptionStatus()) {
+      this.delaySend();
+    }
+    return true;
+  };
+  PutPart.prototype.abort = function () {
+    if (this.currentXhr) {
+      this.currentXhr.abort();
+    }
+    this.resetLoadedBytes();
+    this.attempts = 1;
+  };
+  PutPart.size = 0;
+  PutPart.prototype.streamToArrayBuffer = function (stream) {
+    return new Promise(function (resolve, reject) {
+      // stream is empty or ended
+      if (!stream.readable) { return resolve([]); }
+
+      var arr = new Uint8Array(Math.min(this.con.partSize, this.end - this.start)),
+          i = 0;
+      stream.on('data', onData);
+      stream.on('end', onEnd);
+      stream.on('error', onEnd);
+      stream.on('close', onClose);
+
+      function onData(data) {
+        if (data.byteLength === 1) { return; }
+        arr.set(data, i);
+        i += data.byteLength;
+      }
+
+      function onEnd(err) {
+        if (err) { reject(err); }
+        else { resolve(arr); }
+        cleanup();
+      }
+
+      function onClose() {
+        resolve(arr);
+        cleanup();
+      }
+
+      function cleanup() {
