@@ -1604,3 +1604,63 @@
     this.awsDeferred.resolve(this.currentXhr);
   };
   DeleteMultipartUpload.prototype.errorHandler =  function (reason) {
+    if (this.attempts > this.maxRetries) {
+      var msg = 'Error aborting upload, Exceeded retries deleting the file upload: ' + reason;
+      l.w(msg);
+      this.fileUpload.error(msg);
+      this.awsDeferred.reject(msg);
+      return true;
+    }
+  };
+
+  function signingVersion(awsRequest, l) {
+    var con = awsRequest.con;
+    function AwsSignature(request) {
+      this.request = request;
+    }
+    AwsSignature.prototype.request = {};
+    AwsSignature.prototype.error = function () {};
+    AwsSignature.prototype.authorizationString = function () {};
+    AwsSignature.prototype.stringToSign = function () {};
+    AwsSignature.prototype.canonicalRequest = function () {};
+    AwsSignature.prototype.setHeaders = function () {};
+    AwsSignature.prototype.datetime = function (timeOffset) {
+      return new Date(new Date().getTime() + timeOffset);
+
+    };
+    AwsSignature.prototype.dateString = function (timeOffset) {
+      return this.datetime(timeOffset).toISOString().slice(0, 19).replace(/-|:/g, '') + "Z";
+    };
+
+    function AwsSignatureV2(request) {
+      AwsSignature.call(this, request);
+    }
+    AwsSignatureV2.prototype = Object.create(AwsSignature.prototype);
+    AwsSignatureV2.prototype.constructor = AwsSignatureV2;
+    AwsSignatureV2.prototype.authorizationString = function () {
+      return ['AWS ', con.aws_key, ':', this.request.auth].join('');
+    };
+    AwsSignatureV2.prototype.stringToSign = function () {
+      var x_amz_headers = '', result, header_key_array = [];
+
+      for (var key in this.request.x_amz_headers) {
+        if (this.request.x_amz_headers.hasOwnProperty(key)) {
+          header_key_array.push(key);
+        }
+      }
+      header_key_array.sort();
+
+      header_key_array.forEach(function (header_key) {
+        x_amz_headers += (header_key + ':' + this.request.x_amz_headers[header_key] + '\n');
+      }.bind(this));
+
+      result = this.request.method + '\n' +
+          (this.request.md5_digest || '') + '\n' +
+          (this.request.contentType || '') + '\n' +
+          '\n' +
+          x_amz_headers +
+          (con.cloudfront ? '/' + con.bucket : '') +
+          awsRequest.getPath() + this.request.path;
+
+      l.d('V2 stringToSign:', result);
+      return result;
