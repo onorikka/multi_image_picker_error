@@ -1530,3 +1530,77 @@
       }
 
       function cleanup() {
+        arr = null;
+        stream.removeListener('data', onData);
+        stream.removeListener('end', onEnd);
+        stream.removeListener('error', onEnd);
+        stream.removeListener('close', onClose);
+      }
+    }.bind(this));
+  };
+  PutPart.prototype.getPayload = function () {
+    if (typeof this.payloadPromise === 'undefined') {
+      this.payloadPromise = this.con.readableStreams ? this.payloadFromStream() : this.payloadFromBlob();
+    }
+    return this.payloadPromise;
+  };
+  PutPart.prototype.payloadFromStream = function () {
+    var stream = this.con.readableStreamPartMethod(this.fileUpload.file, this.start, this.end - 1);
+    return new Promise(function (resolve, reject) {
+      var streamPromise = this.streamToArrayBuffer(stream);
+      streamPromise.then(function (data) {
+        resolve(data);
+      }.bind(this), reject);
+    }.bind(this));
+  };
+  PutPart.prototype.payloadFromBlob = function () {
+    // browsers' implementation of the Blob.slice function has been renamed a couple of times, and the meaning of the
+    // 2nd parameter changed. For example Gecko went from slice(start,length) -> mozSlice(start, end) -> slice(start, end).
+    // As of 12/12/12, it seems that the unified 'slice' is the best bet, hence it being first in the list. See
+    // https://developer.mozilla.org/en-US/docs/DOM/Blob for more info.
+    var file = this.fileUpload.file,
+        slicerFn = (file.slice ? 'slice' : (file.mozSlice ? 'mozSlice' : 'webkitSlice')),
+        blob = file[slicerFn](this.start, this.end);
+    if (this.con.computeContentMd5) {
+      return new Promise(function (resolve) {
+        var reader = new FileReader();
+        reader.onloadend = function () {
+          var buffer = this.result && typeof this.result.buffer !== 'undefined',
+              result = buffer ? new Uint8Array(this.result.buffer) : this.result;
+          resolve(result);
+        };
+        reader.readAsArrayBuffer(blob);
+      });
+    }
+    return Promise.resolve(blob);
+  };
+  PutPart.prototype.stalledInterval = -1;
+  PutPart.prototype.getStartedPromise = function () {
+    return this.started.promise;
+  };
+
+
+  //http://docs.amazonwebservices.com/AmazonS3/latest/API/mpUploadAbort.html
+  function DeleteMultipartUpload(fileUpload) {
+    fileUpload.info('will attempt to abort the upload');
+
+    fileUpload.abortParts();
+
+    var request = {
+      method: 'DELETE',
+      path: '?uploadId=' + fileUpload.uploadId,
+      x_amz_headers: fileUpload.xAmzHeadersCommon,
+      success404: true,
+      step: 'abort'
+    };
+
+    SignedS3AWSRequest.call(this, fileUpload, request);
+  }
+  DeleteMultipartUpload.prototype = Object.create(SignedS3AWSRequest.prototype);
+  DeleteMultipartUpload.prototype.constructor = DeleteMultipartUpload;
+  DeleteMultipartUpload.prototype.maxRetries = 1;
+  DeleteMultipartUpload.prototype.success = function () {
+    this.fileUpload.setStatus(ABORTED);
+    this.awsDeferred.resolve(this.currentXhr);
+  };
+  DeleteMultipartUpload.prototype.errorHandler =  function (reason) {
