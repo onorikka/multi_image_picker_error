@@ -1664,3 +1664,62 @@
 
       l.d('V2 stringToSign:', result);
       return result;
+
+    };
+    AwsSignatureV2.prototype.dateString = function (timeOffset) {
+      return this.datetime(timeOffset).toUTCString();
+    };
+    AwsSignatureV2.prototype.getPayload = function () { return Promise.resolve(); };
+
+    function AwsSignatureV4(request) {
+      this._cr = undefined
+      AwsSignature.call(this, request);
+    }
+    AwsSignatureV4.prototype = Object.create(AwsSignature.prototype);
+    AwsSignatureV4.prototype.constructor = AwsSignatureV4;
+    AwsSignatureV4.prototype._cr = undefined;
+    AwsSignatureV4.prototype.payload = null;
+    AwsSignatureV4.prototype.error = function () { this._cr = undefined; };
+    AwsSignatureV4.prototype.getPayload = function () {
+      return awsRequest.getPayload()
+          .then(function (data) {
+            this.payload = data;
+          }.bind(this));
+    };
+    AwsSignatureV4.prototype.authorizationString = function () {
+      var authParts = [];
+
+      var credentials = this.credentialString();
+      var headers = this.canonicalHeaders();
+
+      authParts.push(['AWS4-HMAC-SHA256 Credential=', con.aws_key, '/', credentials].join(''));
+      authParts.push('SignedHeaders=' + headers.signedHeaders);
+      authParts.push('Signature=' + this.request.auth);
+
+      return authParts.join(', ');
+    };
+    AwsSignatureV4.prototype.stringToSign = function () {
+      var signParts = [];
+      signParts.push('AWS4-HMAC-SHA256');
+      signParts.push(this.request.dateString);
+      signParts.push(this.credentialString());
+      signParts.push(con.cryptoHexEncodedHash256(this.canonicalRequest()));
+      var result = signParts.join('\n');
+
+      l.d('V4 stringToSign:', result);
+      return result;
+    };
+    AwsSignatureV4.prototype.credentialString = function () {
+      var credParts = [];
+
+      credParts.push(this.request.dateString.slice(0, 8));
+      credParts.push(con.awsRegion);
+      credParts.push('s3');
+      credParts.push('aws4_request');
+      return credParts.join('/');
+    };
+    AwsSignatureV4.prototype.canonicalQueryString = function () {
+      var qs = awsRequest.request.query_string || '',
+          search = uri([awsRequest.awsUrl, this.request.path, qs].join("")).search,
+          searchParts = search.length ? search.split('&') : [],
+          encoded = [],
