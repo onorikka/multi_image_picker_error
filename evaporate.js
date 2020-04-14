@@ -1723,3 +1723,57 @@
           search = uri([awsRequest.awsUrl, this.request.path, qs].join("")).search,
           searchParts = search.length ? search.split('&') : [],
           encoded = [],
+          nameValue,
+          i;
+
+      for (i = 0; i < searchParts.length; i++) {
+        nameValue = searchParts[i].split("=");
+        encoded.push({
+          name: encodeURIComponent(nameValue[0]),
+          value: nameValue.length > 1 ? encodeURIComponent(nameValue[1]) : null
+        })
+      }
+      var sorted = encoded.sort(function (a, b) {
+        if (a.name < b.name) {
+          return -1;
+        } else if (a.name > b.name) {
+          return 1;
+        }
+        return 0;
+      });
+
+      var result = [];
+      for (i = 0; i < sorted.length; i++) {
+        nameValue = sorted[i].value ? [sorted[i].name, sorted[i].value].join("=") : sorted[i].name + '=';
+        result.push(nameValue);
+      }
+
+      return result.join('&');
+    };
+    AwsSignatureV4.prototype.getPayloadSha256Content = function () {
+      var result = this.request.contentSha256 || con.cryptoHexEncodedHash256(this.payload || '');
+      l.d(this.request.step, 'getPayloadSha256Content:', result);
+      return result;
+    };
+    AwsSignatureV4.prototype.canonicalHeaders = function () {
+      var canonicalHeaders = [],
+          keys = [],
+          i;
+
+      function addHeader(name, value) {
+        var key = name.toLowerCase();
+        keys.push(key);
+        canonicalHeaders[key] = value.replace(/\s+/g, ' ');
+      }
+
+      if (this.request.md5_digest) {
+        addHeader("Content-Md5", this.request.md5_digest);
+      }
+
+      addHeader('Host', awsRequest.awsHost);
+
+      if (this.request.contentType) {
+        addHeader('Content-Type', this.request.contentType || '');
+      }
+
+      var amzHeaders = this.request.x_amz_headers || {};
