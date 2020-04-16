@@ -1777,3 +1777,69 @@
       }
 
       var amzHeaders = this.request.x_amz_headers || {};
+      for (var key in amzHeaders) {
+        if (amzHeaders.hasOwnProperty(key)) {
+          addHeader(key, amzHeaders[key]);
+        }
+      }
+
+      var sortedKeys = keys.sort(function (a, b) {
+        if (a < b) {
+          return -1;
+        } else if (a > b) {
+          return 1;
+        }
+        return 0;
+      });
+
+      var result = [];
+
+      var unsigned_headers = [],
+          not_signed = this.request.not_signed_headers || [],
+          signed_headers = [];
+      for (i = 0; i < not_signed.length; i++) {
+        unsigned_headers.push(not_signed[i].toLowerCase());
+      }
+
+      for (i = 0; i < sortedKeys.length; i++) {
+        var k = sortedKeys[i];
+        result.push([k, canonicalHeaders[k]].join(":"));
+        if (unsigned_headers.indexOf(k) === -1) {
+          signed_headers.push(k);
+        }
+      }
+
+      return {
+        canonicalHeaders: result.join("\n"),
+        signedHeaders: signed_headers.join(";")
+      };
+    };
+    AwsSignatureV4.prototype.canonicalRequest = function () {
+      if (typeof this._cr !== 'undefined') { return this._cr; }
+      var canonParts = [];
+
+      canonParts.push(this.request.method);
+      canonParts.push(uri([awsRequest.awsUrl, awsRequest.getPath(), this.request.path].join("")).pathname);
+      canonParts.push(this.canonicalQueryString() || '');
+
+      var headers = this.canonicalHeaders();
+      canonParts.push(headers.canonicalHeaders + '\n');
+      canonParts.push(headers.signedHeaders);
+      canonParts.push(this.getPayloadSha256Content());
+
+      this._cr = canonParts.join("\n");
+      l.d(this.request.step, 'V4 CanonicalRequest:', this._cr);
+      return this._cr;
+    };
+    AwsSignatureV4.prototype.setHeaders = function (xhr) {
+      xhr.setRequestHeader("x-amz-content-sha256", this.getPayloadSha256Content());
+    };
+
+    return con.awsSignatureVersion === '4' ? AwsSignatureV4 : AwsSignatureV2;
+  }
+  function authorizationMethod(awsRequest) {
+    var fileUpload = awsRequest.fileUpload,
+        con = fileUpload.con,
+        request = awsRequest.request;
+
+    function AuthorizationMethod() {
