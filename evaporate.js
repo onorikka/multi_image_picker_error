@@ -1843,3 +1843,70 @@
         request = awsRequest.request;
 
     function AuthorizationMethod() {
+      this.request = request;
+    }
+    AuthorizationMethod.prototype = Object.create(AuthorizationMethod.prototype);
+    AuthorizationMethod.prototype.request = {};
+    AuthorizationMethod.makeSignParamsObject = function (params) {
+      var out = {};
+      for (var param in params) {
+        if (!params.hasOwnProperty(param)) { continue; }
+        if (typeof params[param] === 'function') {
+          out[param] = params[param]();
+        } else {
+          out[param] = params[param];
+        }
+      }
+      return out;
+    };
+    AuthorizationMethod.prototype.authorize = function () {
+      return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        awsRequest.currentXhr = xhr;
+
+        var stringToSign = awsRequest.stringToSign(),
+            url = [con.signerUrl, '?to_sign=', stringToSign, '&datetime=', request.dateString];
+        if (con.sendCanonicalRequestToSignerUrl) {
+          url.push('&canonical_request=');
+          url.push(encodeURIComponent(awsRequest.canonicalRequest()));
+        }
+        url = url.join("");
+
+        var signParams = AuthorizationMethod.makeSignParamsObject(fileUpload.signParams);
+        for (var param in signParams) {
+          if (!signParams.hasOwnProperty(param)) { continue; }
+          url += ('&' + encodeURIComponent(param) + '=' + encodeURIComponent(signParams[param]));
+        }
+
+        if (con.xhrWithCredentials) {
+          xhr.withCredentials = true;
+        }
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              awsRequest.signResponse(xhr.response, stringToSign, request.dateString)
+                  .then(resolve);
+            } else {
+              if ([401, 403].indexOf(xhr.status) > -1) {
+                var reason = "status:" + xhr.status;
+                fileUpload.deferredCompletion.reject('Permission denied ' + reason);
+                return reject(reason);
+              }
+              reject("Signature fetch returned status: " + xhr.status);
+            }
+          }
+        };
+
+        xhr.onerror = function (xhr) {
+          reject('authorizedSend transport error: ' + xhr.responseText);
+        };
+
+        xhr.open('GET', url);
+        var signHeaders = AuthorizationMethod.makeSignParamsObject(con.signHeaders);
+        for (var header in signHeaders) {
+          if (!signHeaders.hasOwnProperty(header)) { continue; }
+          xhr.setRequestHeader(header, signHeaders[header])
+        }
+
+        if (typeof fileUpload.beforeSigner  === 'function') {
