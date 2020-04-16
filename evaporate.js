@@ -1970,3 +1970,73 @@
       }
       encodedParts.push(buf.join(""));
     });
+    return encodedParts.join('/');
+  }
+
+  function uri(url) {
+    var p,
+        href = url || '/';
+
+    try {
+      p = new URL(href);
+      p.search = p.search || "";
+    } catch (e) {
+      p = document.createElement('a');
+      p.href = href;
+    }
+
+    return {
+      protocol: p.protocol, // => "http:"
+      hostname: p.hostname, // => "example.com"
+      // IE omits the leading slash, so add it if it's missing
+      pathname: p.pathname.replace(/(^\/?)/, "/"), // => "/pathname/"
+      port: p.port, // => "3000"
+      search: (p.search[0] === '?') ? p.search.substr(1) : p.search, // => "search=test"
+      hash: p.hash, // => "#hash"
+      host: p.host  // => "example.com:3000"
+    };
+  }
+
+  function dateISOString(date) {
+    // Try to get the modified date as an ISO String, if the date exists
+    return date ? new Date(date).toISOString() : '';
+  }
+
+  function getAwsResponse(xhr) {
+    var code = elementText(xhr.responseText, "Code"),
+        msg = elementText(xhr.responseText, "Message");
+    return code.length ? ['AWS Code: ', code, ', Message:', msg].join("") : '';
+  }
+
+  function elementText(source, element) {
+    var match = source.match(["<", element, ">(.+)</", element, ">"].join(""));
+    return match ? match[1] : '';
+  }
+
+  function defer() {
+    var deferred = {}, promise;
+    promise = new Promise(function(resolve, reject){
+      deferred = {resolve: resolve, reject: reject};
+    });
+    return {
+      resolve: deferred.resolve,
+      reject: deferred.reject,
+      promise: promise
+    }
+  }
+
+  function extend(obj1, obj2, obj3) {
+    function ext(target, source) {
+      if (typeof source !== 'object') { return; }
+      for (var key in source) {
+        if (source.hasOwnProperty(key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    obj1 = obj1 || {};
+    obj2 = obj2 || {};
+    obj3 = obj3 || {};
+    ext(obj2, obj3);
+    ext(obj1, obj2);
