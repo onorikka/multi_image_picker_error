@@ -1910,3 +1910,63 @@
         }
 
         if (typeof fileUpload.beforeSigner  === 'function') {
+          fileUpload.beforeSigner(xhr, url);
+        }
+        xhr.send();
+      });
+    };
+
+    function AuthorizationCustom() {
+      AuthorizationMethod.call(this);
+    }
+    AuthorizationCustom.prototype = Object.create(AuthorizationMethod.prototype);
+    AuthorizationCustom.prototype.authorize = function () {
+      return con.customAuthMethod(
+          AuthorizationMethod.makeSignParamsObject(fileUpload.signParams),
+          AuthorizationMethod.makeSignParamsObject(con.signHeaders),
+          awsRequest.stringToSign(),
+          request.dateString,
+          awsRequest.canonicalRequest())
+          .catch(function (reason) {
+            fileUpload.deferredCompletion.reject(reason);
+            throw reason;
+          });
+    };
+
+    if (typeof con.customAuthMethod === 'function') {
+      return new AuthorizationCustom()
+    }
+
+    return new AuthorizationMethod();
+  }
+
+  function awsUrl(con) {
+    var url;
+    if (con.aws_url) {
+      url = [con.aws_url];
+    } else {
+      if (con.s3Acceleration) {
+        url = ["https://", con.bucket, ".s3-accelerate"];
+        con.cloudfront = true;
+      } else {
+        url = ["https://", (con.cloudfront ? con.bucket + "." : ""), "s3"];
+        if (con.awsRegion !== "us-east-1") {
+          url.push("-", con.awsRegion);
+        }
+      }
+      url.push(".amazonaws.com");
+    }
+    return url.join("");
+  }
+
+  function s3EncodedObjectName(fileName) {
+    var fileParts = fileName.split('/'),
+        encodedParts = [];
+    fileParts.forEach(function (p) {
+      var buf = [],
+          enc = encodeURIComponent(p);
+      for (var i = 0; i < enc.length; i++) {
+        buf.push(S3_EXTRA_ENCODED_CHARS[enc.charCodeAt(i)] || enc.charAt(i));
+      }
+      encodedParts.push(buf.join(""));
+    });
