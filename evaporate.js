@@ -2040,3 +2040,56 @@
     obj3 = obj3 || {};
     ext(obj2, obj3);
     ext(obj1, obj2);
+
+    return obj1;
+  }
+
+  function getSavedUploads(purge) {
+    var uploads = JSON.parse(historyCache.getItem('awsUploads') || '{}');
+
+    if (purge) {
+      for (var key in uploads) {
+        if (uploads.hasOwnProperty(key)) {
+          var upload = uploads[key],
+              completedAt = new Date(upload.completedAt || FAR_FUTURE);
+
+          if (completedAt < HOURS_AGO) {
+            // The upload is recent, let's keep it
+            delete uploads[key];
+          }
+        }
+      }
+
+      historyCache.setItem('awsUploads', JSON.stringify(uploads));
+    }
+
+    return uploads;
+  }
+
+  function uploadKey(fileUpload) {
+    // The key tries to give a signature to a file in the absence of its path.
+    // "<filename>-<mimetype>-<modifieddate>-<filesize>"
+    return [
+      fileUpload.file.name,
+      fileUpload.file.type,
+      dateISOString(fileUpload.file.lastModified),
+      fileUpload.sizeBytes
+    ].join("-");
+  }
+
+  function saveUpload(uploadKey, upload) {
+    var uploads = getSavedUploads();
+    uploads[uploadKey] = upload;
+    historyCache.setItem('awsUploads', JSON.stringify(uploads));
+  }
+
+  function removeUpload(uploadKey) {
+    var uploads = getSavedUploads();
+    delete uploads[uploadKey];
+    historyCache.setItem('awsUploads', JSON.stringify(uploads));
+  }
+
+  function removeAtIndex(a, i) {
+    var idx = a.indexOf(i);
+    if (idx > -1) {
+      a.splice(idx, 1);
