@@ -2093,3 +2093,62 @@
     var idx = a.indexOf(i);
     if (idx > -1) {
       a.splice(idx, 1);
+      return true;
+    }
+  }
+
+  function readableFileSize(size) {
+    // Adapted from https://github.com/fkjaekel
+    // https://github.com/TTLabs/EvaporateJS/issues/13
+    var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+        i = 0;
+    while(size >= 1024) {
+      size /= 1024;
+      ++i;
+    }
+    return [size.toFixed(2).replace('.00', ''), units[i]].join(" ");
+  }
+
+  var historyCache;
+  function HistoryCache(mockLocalStorage) {
+    var supported = HistoryCache.supported();
+    this.cacheStore = mockLocalStorage ? {} : (supported ? localStorage : undefined);
+  }
+  HistoryCache.prototype.supported = false;
+  HistoryCache.prototype.cacheStore = undefined;
+  HistoryCache.prototype.getItem = function (key) { if (this.cacheStore) { return this.cacheStore[key]; }};
+  HistoryCache.prototype.setItem = function (key, value) { if (this.cacheStore) { this.cacheStore[key] = value; }};
+  HistoryCache.prototype.removeItem = function (key) { if (this.cacheStore) { return delete this.cacheStore[key] }};
+  HistoryCache.supported = function () {
+    var result = false;
+    if (typeof window !== 'undefined') {
+      if (!('localStorage' in window)) {
+        return result;
+      }
+    } else {
+      return result;
+    }
+
+    // Try to use storage (it might be disabled, e.g. user is in private mode)
+    try {
+      var k = '___test';
+      localStorage[k] = 'OK';
+      var test = localStorage[k];
+      delete localStorage[k];
+      return test === 'OK';
+    } catch (e) {
+      return result;
+    }
+  };
+
+  function noOpLogger() { return {d: function () {}, w: function () {}, e: function () {}}; }
+
+  l = noOpLogger();
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Evaporate;
+  } else if (typeof window !== 'undefined') {
+    window.Evaporate = Evaporate;
+  }
+
+}());
