@@ -10,4 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.impl.cookie.DateUtils;
 
 @WebServlet("/serverTime")
-public class ServerT
+public class ServerTimeExample extends HttpServlet
+{
+	private static final long seria
