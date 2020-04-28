@@ -7,4 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.impl.co
+import org.apache.http.impl.cookie.DateUtils;
+
+@WebServlet("/serverTime")
+public class ServerT
