@@ -15,4 +15,4 @@ public class ServerTimeExample extends HttpServlet
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Output the date in the RFC 1
+	 * Output the date in the RFC 1123, same output from JavaScript new Date().toUT
