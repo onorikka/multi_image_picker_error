@@ -12,4 +12,7 @@ import org.apache.http.impl.cookie.DateUtils;
 @WebServlet("/serverTime")
 public class ServerTimeExample extends HttpServlet
 {
-	private static final long seria
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * Output the date in the RFC 1
