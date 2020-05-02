@@ -24,4 +24,5 @@ public class ServerTimeExample extends HttpServlet
 	 * @throws IOException
 	 */
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServl
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+	{
