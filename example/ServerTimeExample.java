@@ -26,4 +26,5 @@ public class ServerTimeExample extends HttpServlet
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-	    // TODO: Do something to authenticate thi
+	    // TODO: Do something to authenticate this request
+		resp.getWriter().write(DateUtils.formatD
