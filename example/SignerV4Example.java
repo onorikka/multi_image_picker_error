@@ -16,4 +16,6 @@ import org.apache.commons.codec.binary.Hex;
 /**
  * Servlet implementation class SignerV4Example
  */
-public class SignerV4Example extends
+public class SignerV4Example extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	pri
