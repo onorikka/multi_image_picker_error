@@ -11,4 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
-i
+import org.apache.commons.codec.binary.Hex;
+
+/**
+ * Servlet implementation clas
