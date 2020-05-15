@@ -20,4 +20,8 @@ public class SignerV4Example extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String  SECRET_KYE = "your-secret-key";
 	private static final String  REGION = "your-region";
-	private static final Strin
+	private static final String  SERVICE_NAME = "s3";
+	
+	
+       
+    public Sign
