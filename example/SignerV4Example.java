@@ -19,4 +19,5 @@ import org.apache.commons.codec.binary.Hex;
 public class SignerV4Example extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String  SECRET_KYE = "your-secret-key";
-	p
+	private static final String  REGION = "your-region";
+	private static final Strin
