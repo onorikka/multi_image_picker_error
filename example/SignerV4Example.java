@@ -24,4 +24,9 @@ public class SignerV4Example extends HttpServlet {
 	
 	
        
-    public Sign
+    public SignerV4Example() {
+        super();
+    }
+
+
+	protected void doG
