@@ -29,4 +29,6 @@ public class SignerV4Example extends HttpServlet {
     }
 
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse respons
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+		String d
