@@ -29,4 +29,4 @@ public class SignerV4Example extends HttpServlet {
     }
 
 
-	protected void doG
+	protected void doGet(HttpServletRequest request, HttpServletResponse respons
