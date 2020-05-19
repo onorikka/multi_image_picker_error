@@ -31,4 +31,5 @@ public class SignerV4Example extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		String d
+		String data = request.getParameter("to_sign");
+		String dateStamp =
