@@ -35,3 +35,5 @@ public class SignerV4Example extends HttpServlet {
 		String dateStamp = request.getParameter("datetime").
 				substring(0, 8);
 		
+		 if(StringUtils.isEmpty(data)) {
+	            response.send
