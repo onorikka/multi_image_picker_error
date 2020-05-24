@@ -36,4 +36,4 @@ public class SignerV4Example extends HttpServlet {
 				substring(0, 8);
 		
 		 if(StringUtils.isEmpty(data)) {
-	            response.send
+	            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid data: 'to_sign
