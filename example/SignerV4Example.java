@@ -41,4 +41,7 @@ public class SignerV4Example extends HttpServlet {
 	            try {
 					response.getWriter().write(
 							getSignatureKey(getSignatureKey(SECRET_KYE, dateStamp, REGION, SERVICE_NAME,data))
-	
+							);
+				} catch (Exception e) {
+					e.printStackTrace();
+		
