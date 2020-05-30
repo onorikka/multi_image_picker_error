@@ -44,4 +44,9 @@ public class SignerV4Example extends HttpServlet {
 							);
 				} catch (Exception e) {
 					e.printStackTrace();
+				}
+	        }
 		
+	}
+
+	protected void doPost(HttpServletR
