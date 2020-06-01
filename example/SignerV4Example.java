@@ -49,4 +49,4 @@ public class SignerV4Example extends HttpServlet {
 		
 	}
 
-	protected void doPost(HttpServletR
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws S
