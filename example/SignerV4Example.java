@@ -53,4 +53,5 @@ public class SignerV4Example extends HttpServlet {
 		doGet(request, response);
 	}
 	
-	static byt
+	static byte[] HmacSHA256(String data, byte[] key) throws Exception {
+	    St
