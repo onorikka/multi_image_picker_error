@@ -54,4 +54,5 @@ public class SignerV4Example extends HttpServlet {
 	}
 	
 	static byte[] HmacSHA256(String data, byte[] key) throws Exception {
-	    St
+	    String algorithm="HmacSHA256";
+	    Mac mac = Mac.getIns
