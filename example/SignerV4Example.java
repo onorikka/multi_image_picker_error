@@ -56,4 +56,6 @@ public class SignerV4Example extends HttpServlet {
 	static byte[] HmacSHA256(String data, byte[] key) throws Exception {
 	    String algorithm="HmacSHA256";
 	    Mac mac = Mac.getInstance(algorithm);
-	    mac.init(new SecretKeySpec(key, algorithm))
+	    mac.init(new SecretKeySpec(key, algorithm));
+	    return mac.doFinal(data.getBytes("UTF-8"));
+	}
