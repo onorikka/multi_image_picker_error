@@ -61,4 +61,7 @@ public class SignerV4Example extends HttpServlet {
 	}
 	
 	public static String getSignatureKey(byte[] signer) {
-		re
+		return  Hex.encodeHexString(signer);
+	}
+
+	static byte[] getSignatu
