@@ -59,3 +59,6 @@ public class SignerV4Example extends HttpServlet {
 	    mac.init(new SecretKeySpec(key, algorithm));
 	    return mac.doFinal(data.getBytes("UTF-8"));
 	}
+	
+	public static String getSignatureKey(byte[] signer) {
+		re
