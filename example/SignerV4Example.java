@@ -65,4 +65,5 @@ public class SignerV4Example extends HttpServlet {
 	}
 
 	static byte[] getSignatureKey(String secretKey, String dateStamp, String regionName, String serviceName, String toSign) throws Exception {
-	    byte[]
+	    byte[] kSecret = ("AWS4" + secretKey).getBytes("UTF-8");
+	 
