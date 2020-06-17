@@ -68,4 +68,5 @@ public class SignerV4Example extends HttpServlet {
 	    byte[] kSecret = ("AWS4" + secretKey).getBytes("UTF-8");
 	    byte[] kDate = HmacSHA256(dateStamp, kSecret);
 	    byte[] kRegion = HmacSHA256(regionName, kDate);
-	    byte[] kService = Hmac
+	    byte[] kService = HmacSHA256(serviceName, kRegion);
+	    byte[] kSigning = HmacSHA256("aws4_r
