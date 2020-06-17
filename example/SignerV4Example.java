@@ -70,4 +70,6 @@ public class SignerV4Example extends HttpServlet {
 	    byte[] kRegion = HmacSHA256(regionName, kDate);
 	    byte[] kService = HmacSHA256(serviceName, kRegion);
 	    byte[] kSigning = HmacSHA256("aws4_request", kService);
-	    byte[] dataSigning = HmacSHA256(
+	    byte[] dataSigning = HmacSHA256(toSign, kSigning);
+	    return dataSigning;
+	
