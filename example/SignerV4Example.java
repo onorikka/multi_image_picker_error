@@ -72,4 +72,6 @@ public class SignerV4Example extends HttpServlet {
 	    byte[] kSigning = HmacSHA256("aws4_request", kService);
 	    byte[] dataSigning = HmacSHA256(toSign, kSigning);
 	    return dataSigning;
-	
+	}
+
+}
