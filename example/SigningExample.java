@@ -24,3 +24,53 @@ public class SigningExample extends HttpServlet
     {
         // TODO: Do something to authenticate this request
         String data = request.getParameter("to_sign");
+
+        if(StringUtils.isEmpty(data))
+        {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid data: 'to_sign' parameter not informed");
+        }
+        else
+        {
+            response.getWriter().write(calculateRFC2104HMAC(data, "<<YOUR_AWS_SECRET_KEY>>"));
+        }
+    }
+
+    /**
+     * http://docs.aws.amazon.com/AmazonSimpleDB/latest/DeveloperGuide/HMACAuth.html#AuthJavaSampleHMACSignature
+     *
+     * Computes RFC 2104-compliant HMAC signature.
+     *
+     * @param data
+     *           The data to be signed.
+     * @param key
+     *           The signing key.
+     * @return The Base64-encoded RFC 2104-compliant HMAC signature.
+     * @throws ServletException
+     * @throws java.security.SignatureException
+     *            when signature generation fails
+     */
+    public static String calculateRFC2104HMAC(String data, String key) throws ServletException
+    {
+        String result;
+        try
+        {
+            // get an hmac_sha1 key from the raw key bytes
+            SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
+
+            // get an hmac_sha1 Mac instance and initialize with the signing key
+            Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+            mac.init(signingKey);
+
+            // compute the hmac on input data bytes
+            byte[] rawHmac = mac.doFinal(data.getBytes());
+
+            // base64-encode the hmac
+            result = new String(Base64.encodeBase64(rawHmac));
+        }
+        catch(Exception e)
+        {
+            throw new ServletException("Failed to generate HMAC: " + e.getMessage());
+        }
+        return result;
+    }
+}
