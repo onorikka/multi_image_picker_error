@@ -49,3 +49,11 @@ app.use('/signv4_auth', function (req, res) {
 });
 
 app.get('/', function (req, res) {
+  res.redirect(301, '/example/evaporate_example_awsv4_signature.html');
+});
+
+// ------- Start the server -----------
+app.listen(3000, '127.0.0.1', function() {
+  console.log('Listening on 127.0.0.1:3000');
+  console.log(process.env.AWS_SECRET, process.env.AWS_REGION, process.env.AWS_SERVICE)
+});
