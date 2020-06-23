@@ -9,4 +9,8 @@ app.use(express.static(require('path').join( __dirname + '/../')));
 
 // Add simple logging middleware
 app.use(function(req, res, next) {
-  console.log
+  console.log(req.method + ' ' + req.originalUrl);
+  next();
+});
+
+app.use(bodyParser.urlencod
