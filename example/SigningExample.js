@@ -7,4 +7,6 @@ var crypto = require('crypto');
 var app = express();
 app.use(express.static(require('path').join( __dirname + '/../')));
 
-// Add simple loggin
+// Add simple logging middleware
+app.use(function(req, res, next) {
+  console.log
