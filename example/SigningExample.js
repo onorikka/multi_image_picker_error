@@ -5,4 +5,6 @@ var bodyParser = require('body-parser');
 var crypto = require('crypto');
 
 var app = express();
-app.use(express.static
+app.use(express.static(require('path').join( __dirname + '/../')));
+
+// Add simple loggin
