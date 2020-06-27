@@ -13,4 +13,8 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.use(bodyParser.urlencod
+app.use(bodyParser.urlencoded({
+	extended: true
+}));
+
+app.listen(8080, '127.0.0.1', functio
