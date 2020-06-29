@@ -17,4 +17,6 @@ app.use(bodyParser.urlencoded({
 	extended: true
 }));
 
-app.listen(8080, '127.0.0.1', functio
+app.listen(8080, '127.0.0.1', function () {
+	console.log('Listening on 127.0.0.1:8080');
+});
