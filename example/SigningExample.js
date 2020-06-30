@@ -23,4 +23,5 @@ app.listen(8080, '127.0.0.1', function () {
 
 app.use('/sign_auth', function (req, res) {
 	// TODO: Do something to authenticate this request
-	
+	var signature = crypto
+		.createHmac('sha1', process.env.AWS_
