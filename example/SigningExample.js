@@ -20,3 +20,6 @@ app.use(bodyParser.urlencoded({
 app.listen(8080, '127.0.0.1', function () {
 	console.log('Listening on 127.0.0.1:8080');
 });
+
+app.use('/sign_auth', function (req, res) {
+	// TOD
