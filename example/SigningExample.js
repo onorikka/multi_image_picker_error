@@ -27,4 +27,4 @@ app.use('/sign_auth', function (req, res) {
 		.createHmac('sha1', process.env.AWS_SECRET)
 		.update(req.query.to_sign)
 		.digest('base64')
-	c
+	console.log('Created signature "' + signature + '" f
