@@ -31,4 +31,5 @@ app.use('/sign_auth', function (req, res) {
 	res.send(signature);
 });
 
-app.get(
+app.get('/index.html', function (req, res) {
+	res.redirect(
