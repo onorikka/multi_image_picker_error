@@ -32,4 +32,5 @@ app.use('/sign_auth', function (req, res) {
 });
 
 app.get('/index.html', function (req, res) {
-	res.redirect(
+	res.redirect(301, '/example/evaporate_example.html');
+});
