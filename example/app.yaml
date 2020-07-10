@@ -1,3 +1,9 @@
 application: evaporatejs
 version: evaporate-214
-runtime: python2
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /assets
+  static_dir
