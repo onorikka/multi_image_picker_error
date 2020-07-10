@@ -6,4 +6,8 @@ threadsafe: true
 
 handlers:
 - url: /assets
-  static_dir
+  static_dir: assets
+
+- url: /
+  static_files: evaporate_example.html
+  u
