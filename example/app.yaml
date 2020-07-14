@@ -10,4 +10,7 @@ handlers:
 
 - url: /
   static_files: evaporate_example.html
-  u
+  upload: evaporate_example.html
+
+- url: /lambda
+  static_fil
