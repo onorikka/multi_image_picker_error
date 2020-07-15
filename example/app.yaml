@@ -13,4 +13,5 @@ handlers:
   upload: evaporate_example.html
 
 - url: /lambda
-  static_fil
+  static_files: evaporate_example_lambda.html
+  upload: evaporate_ex
