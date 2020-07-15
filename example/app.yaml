@@ -14,4 +14,7 @@ handlers:
 
 - url: /lambda
   static_files: evaporate_example_lambda.html
-  upload: evaporate_ex
+  upload: evaporate_example_lambda.html
+
+- url: /sign_auth
+  script: awsv4_s
