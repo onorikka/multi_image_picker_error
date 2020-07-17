@@ -20,4 +20,5 @@ handlers:
   script: awsv4_signing_example.app
 
 - url: /evaporate\.js
-  static_files: .
+  static_files: ../evaporate.js
+  upload: ../evaporate.js
