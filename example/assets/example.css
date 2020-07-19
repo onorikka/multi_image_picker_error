@@ -1,2 +1,7 @@
 #files {
-    displa
+    display: inline;
+}
+#awsKey, #awsRegion {
+    width: 200px;
+}
+#s3
