@@ -10,4 +10,9 @@
 #signerUrl {
     width: 350px;
 }
-label, input[type=radio], input[type=checkbox] { cursor: po
+label, input[type=radio], input[type=checkbox] { cursor: pointer }
+.errors {
+    color: #ff0000;
+}
+.progress-clock {
+   
