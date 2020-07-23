@@ -22,4 +22,7 @@ label, input[type=radio], input[type=checkbox] { cursor: pointer }
     text-align: center;
 
 
-    border: black
+    border: black;
+    border-width: 2px;
+    border-style: dotted;
+    paddi
