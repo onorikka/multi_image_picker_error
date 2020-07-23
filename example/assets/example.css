@@ -15,4 +15,6 @@ label, input[type=radio], input[type=checkbox] { cursor: pointer }
     color: #ff0000;
 }
 .progress-clock {
-   
+    min-width: 100px;
+    min-height: 60px;
+    width: 60
