@@ -25,4 +25,8 @@ label, input[type=radio], input[type=checkbox] { cursor: pointer }
     border: black;
     border-width: 2px;
     border-style: dotted;
-    paddi
+    padding: 3px;
+    margin: 3px;
+}
+
+.progress-clock svg path 
