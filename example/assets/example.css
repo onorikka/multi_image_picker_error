@@ -29,4 +29,8 @@ label, input[type=radio], input[type=checkbox] { cursor: pointer }
     margin: 3px;
 }
 
-.progress-clock svg path 
+.progress-clock svg path {
+    transition: stroke 1.5s ease;
+}
+
+.progress-cloc
