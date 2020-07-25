@@ -33,4 +33,6 @@ label, input[type=radio], input[type=checkbox] { cursor: pointer }
     transition: stroke 1.5s ease;
 }
 
-.progress-cloc
+.progress-clock p.progressbar-text {
+    transition: color 1.5s ease;
+}
