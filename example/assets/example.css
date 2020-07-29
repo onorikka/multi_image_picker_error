@@ -43,4 +43,8 @@ label, input[type=radio], input[type=checkbox] { cursor: pointer }
 }
 
 .progress-clock.canceled svg path, .progress-clock.canceled p.progressbar-text {
-    stroke: #D1FF
+    stroke: #D1FF0A;
+    color: #D1FF0A;
+}
+
+.progress-clock.completed svg pat
