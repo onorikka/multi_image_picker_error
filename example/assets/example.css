@@ -52,4 +52,9 @@ label, input[type=radio], input[type=checkbox] { cursor: pointer }
     color: #009A00;
 }
 
-.progress-clock.error svg path, .progress-clock.error p.progressbar-text
+.progress-clock.error svg path, .progress-clock.error p.progressbar-text {
+    stroke: #C71704;
+    color: #C71704;
+}
+
+.progress-clock.wa
