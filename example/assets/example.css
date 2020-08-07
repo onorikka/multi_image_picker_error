@@ -58,3 +58,9 @@ label, input[type=radio], input[type=checkbox] { cursor: pointer }
 }
 
 .progress-clock.warning svg path, .progress-clock.warning p.progressbar-text {
+    stroke: #F59F08;
+    color: #F59F08;
+
+}
+
+.progress-cl
