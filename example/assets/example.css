@@ -63,4 +63,4 @@ label, input[type=radio], input[type=checkbox] { cursor: pointer }
 
 }
 
-.progress-cl
+.progress-clock.pausing svg path, .progress-clock.pausing p.progressbar-
