@@ -9,4 +9,7 @@ import (
 )
 
 var (
-	da
+	date        string
+	regionName  string
+	serviceName string
+	
