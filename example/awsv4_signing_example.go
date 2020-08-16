@@ -1,4 +1,12 @@
 // You need to import the following:
 import (
 	"crypto/hmac"
-	"cryp
+	"crypto/sha256"
+	"fmt"
+	"log"
+	"net/http"
+	"strings"
+)
+
+var (
+	da
