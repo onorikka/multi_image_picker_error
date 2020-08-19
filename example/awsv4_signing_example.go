@@ -15,4 +15,5 @@ var (
 	requestName string
 )
 
-// this example is using Marti
+// this example is using Martini
+m.Get("/sign_auth", func(w http.Respo
