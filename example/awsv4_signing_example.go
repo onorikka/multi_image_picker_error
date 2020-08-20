@@ -20,4 +20,5 @@ m.Get("/sign_auth", func(w http.ResponseWriter, r *http.Request) {
     // Todo: Authenticate the request	log.Println("signing")
 	qs := req.URL.Query()
 
-	strs := strings.
+	strs := strings.Split(qs.Get("to_sign"), "\n")
+	data := strings.Split(strs[2], "/")
