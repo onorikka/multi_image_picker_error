@@ -22,3 +22,4 @@ m.Get("/sign_auth", func(w http.ResponseWriter, r *http.Request) {
 
 	strs := strings.Split(qs.Get("to_sign"), "\n")
 	data := strings.Split(strs[2], "/")
+	date, regionName, serviceName, requestName = data
