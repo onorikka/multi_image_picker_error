@@ -17,4 +17,7 @@ var (
 
 // this example is using Martini
 m.Get("/sign_auth", func(w http.ResponseWriter, r *http.Request) {
-    // Todo: Authenticate the request	
+    // Todo: Authenticate the request	log.Println("signing")
+	qs := req.URL.Query()
+
+	strs := strings.
