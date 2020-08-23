@@ -24,4 +24,9 @@ m.Get("/sign_auth", func(w http.ResponseWriter, r *http.Request) {
 	data := strings.Split(strs[2], "/")
 	date, regionName, serviceName, requestName = data[0], data[1], data[2], data[3]
 
-	signedKey := signature(date, qs.Ge
+	signedKey := signature(date, qs.Get("to_sign"))
+
+	w.Write([]byte(signedKey))
+}
+
+func sign
