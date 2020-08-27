@@ -30,4 +30,8 @@ m.Get("/sign_auth", func(w http.ResponseWriter, r *http.Request) {
 }
 
 func signature(t, sts string) string {
-	h := HMAC(derivedKey(t),
+	h := HMAC(derivedKey(t), []byte(sts))
+	return fmt.Sprintf("%x", h)
+}
+
+func derivedKey(t 
