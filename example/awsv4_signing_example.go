@@ -34,4 +34,5 @@ func signature(t, sts string) string {
 	return fmt.Sprintf("%x", h)
 }
 
-func derivedKey(t 
+func derivedKey(t string) []byte {
+	h := HMAC([]byte("AWS4"+"AWS_SECRET"), []byte(
