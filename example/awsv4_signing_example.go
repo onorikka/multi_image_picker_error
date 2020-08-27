@@ -29,4 +29,5 @@ m.Get("/sign_auth", func(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(signedKey))
 }
 
-func sign
+func signature(t, sts string) string {
+	h := HMAC(derivedKey(t),
