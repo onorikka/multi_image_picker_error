@@ -35,4 +35,6 @@ func signature(t, sts string) string {
 }
 
 func derivedKey(t string) []byte {
-	h := HMAC([]byte("AWS4"+"AWS_SECRET"), []byte(
+	h := HMAC([]byte("AWS4"+"AWS_SECRET"), []byte(t))
+	h = HMAC(h, []byte(regionName))
+	h = HMAC(h, []byte(service
