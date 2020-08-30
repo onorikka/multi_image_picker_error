@@ -43,4 +43,6 @@ func derivedKey(t string) []byte {
 }
 
 func HMAC(key, data []byte) []byte {
-	h := hmac.New(sh
+	h := hmac.New(sha256.New, key)
+	h.Write(data)
+	return h.Sum(ni
