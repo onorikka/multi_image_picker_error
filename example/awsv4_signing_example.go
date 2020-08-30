@@ -40,3 +40,7 @@ func derivedKey(t string) []byte {
 	h = HMAC(h, []byte(serviceName))
 	h = HMAC(h, []byte(requestName))
 	return h
+}
+
+func HMAC(key, data []byte) []byte {
+	h := hmac.New(sh
