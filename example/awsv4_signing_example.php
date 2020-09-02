@@ -42,3 +42,20 @@ class EvaporateJSController extends Controller
 
       //format the datetime to the correct format AWS expect
       $formattedDate = Carbon::parse($dateTime)->format('Ymd');
+
+      //make the Signature, notice that we use env for saving AWS keys and regions
+
+      $kSecret = "AWS4" . env('AWS_SECRET_ACCESS_KEY');
+      $kDate = hash_hmac("sha256", $formattedDate, $kSecret, true);
+      $kRegion = hash_hmac("sha256", env('AWS_REGION'), $kDate, true);
+      $kService = hash_hmac("sha256", 's3', $kRegion, true);
+      $kSigning = hash_hmac("sha256", "aws4_request", $kService, true);
+      $signature = hash_hmac("sha256", $to_sign, $kSigning);
+      // return response()->json(["success"=>true, "signature"=>$signature]);
+      //let's just return plain text
+      return response($signature);
+  }
+
+}
+
+?>
