@@ -7,4 +7,6 @@ import datetime
 import hashlib
 import hmac
 
-# get AWS details from some
+# get AWS details from somewhere...
+# from foo import YOUR_AWS_SECRET_KEY
+# from foo
