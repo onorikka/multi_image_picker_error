@@ -3,4 +3,8 @@
 import webapp2
 
 # needed to sign S3 policy
-import date
+import datetime
+import hashlib
+import hmac
+
+# get AWS details from some
