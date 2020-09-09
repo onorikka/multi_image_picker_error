@@ -17,4 +17,5 @@ class SignAuth(webapp2.RequestHandler):
     def get(self):
         to_sign = str(self.request.get('to_sign')).encode('utf-8')
         
-        aws_se
+        aws_secret = YOUR_AWS_SECRET_KEY
+        date_stam
