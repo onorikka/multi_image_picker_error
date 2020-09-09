@@ -9,4 +9,7 @@ import hmac
 
 # get AWS details from somewhere...
 # from foo import YOUR_AWS_SECRET_KEY
-# from foo
+# from foo import YOUR_AWS_REGION
+
+
+class SignAuth(webapp2.RequestHandl
