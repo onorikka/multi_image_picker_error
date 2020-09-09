@@ -12,4 +12,7 @@ import hmac
 # from foo import YOUR_AWS_REGION
 
 
-class SignAuth(webapp2.RequestHandl
+class SignAuth(webapp2.RequestHandler):
+
+    def get(self):
+        to_sign = str(self.reques
