@@ -18,4 +18,6 @@ class SignAuth(webapp2.RequestHandler):
         to_sign = str(self.request.get('to_sign')).encode('utf-8')
         
         aws_secret = YOUR_AWS_SECRET_KEY
-        date_stamp = datetime.datetime.strptime(self.request.get('datetime'
+        date_stamp = datetime.datetime.strptime(self.request.get('datetime'), '%Y%m%dT%H%M%SZ').strftime('%Y%m%d')
+        region = YOUR_AWS_REGION
+    
