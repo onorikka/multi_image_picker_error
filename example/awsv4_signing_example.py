@@ -20,4 +20,6 @@ class SignAuth(webapp2.RequestHandler):
         aws_secret = YOUR_AWS_SECRET_KEY
         date_stamp = datetime.datetime.strptime(self.request.get('datetime'), '%Y%m%dT%H%M%SZ').strftime('%Y%m%d')
         region = YOUR_AWS_REGION
-    
+        service = 's3'
+
+        # Key derivation functio
