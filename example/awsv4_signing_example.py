@@ -22,4 +22,5 @@ class SignAuth(webapp2.RequestHandler):
         region = YOUR_AWS_REGION
         service = 's3'
 
-        # Key derivation functio
+        # Key derivation functions. See:
+        # http://docs.aws.amazon.com/general/latest/gr
