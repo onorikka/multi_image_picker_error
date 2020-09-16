@@ -25,4 +25,6 @@ class SignAuth(webapp2.RequestHandler):
         # Key derivation functions. See:
         # http://docs.aws.amazon.com/general/latest/gr/signature-v4-examples.html#signature-v4-examples-python
         def sign(key, msg):
-            return hmac.new(key,
+            return hmac.new(key, msg.encode("utf-8"), hashlib.sha256).digest()
+
+ 
