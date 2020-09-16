@@ -23,4 +23,6 @@ class SignAuth(webapp2.RequestHandler):
         service = 's3'
 
         # Key derivation functions. See:
-        # http://docs.aws.amazon.com/general/latest/gr/signature-v4-examples.html#signature-v4-examples-
+        # http://docs.aws.amazon.com/general/latest/gr/signature-v4-examples.html#signature-v4-examples-python
+        def sign(key, msg):
+            return hmac.new(key,
