@@ -27,4 +27,5 @@ class SignAuth(webapp2.RequestHandler):
         def sign(key, msg):
             return hmac.new(key, msg.encode("utf-8"), hashlib.sha256).digest()
 
-        def getSignatureKey(key, date_stamp, regionName, serviceNam
+        def getSignatureKey(key, date_stamp, regionName, serviceName):
+            kDate = sign(('AWS4' + key).encode
