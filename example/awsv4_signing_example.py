@@ -34,4 +34,6 @@ class SignAuth(webapp2.RequestHandler):
             kSigning = sign(kService, 'aws4_request')
             return kSigning
 
-        signing_key = get
+        signing_key = getSignatureKey(aws_secret, date_stamp, region, service)
+
+      
