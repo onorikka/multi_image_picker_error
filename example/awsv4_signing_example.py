@@ -31,4 +31,7 @@ class SignAuth(webapp2.RequestHandler):
             kDate = sign(('AWS4' + key).encode('utf-8'), date_stamp)
             kRegion = sign(kDate, regionName)
             kService = sign(kRegion, serviceName)
-            kSigning = sign(kService, 'aw
+            kSigning = sign(kService, 'aws4_request')
+            return kSigning
+
+        signing_key = get
