@@ -39,4 +39,7 @@ class SignAuth(webapp2.RequestHandler):
         # Sign to_sign using the signing_key
         signature = hmac.new(
             signing_key,
-       
+            to_sign,
+            hashlib.sha256
+        ).hexdigest()
+
