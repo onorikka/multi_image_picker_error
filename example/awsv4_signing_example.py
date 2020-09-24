@@ -37,4 +37,6 @@ class SignAuth(webapp2.RequestHandler):
         signing_key = getSignatureKey(aws_secret, date_stamp, region, service)
 
         # Sign to_sign using the signing_key
-        s
+        signature = hmac.new(
+            signing_key,
+       
