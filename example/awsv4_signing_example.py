@@ -43,3 +43,5 @@ class SignAuth(webapp2.RequestHandler):
             hashlib.sha256
         ).hexdigest()
 
+        self.response.headers['Content-Type'] = "text/HTML"
+ 
