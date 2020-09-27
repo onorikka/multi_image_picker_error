@@ -44,4 +44,6 @@ class SignAuth(webapp2.RequestHandler):
         ).hexdigest()
 
         self.response.headers['Content-Type'] = "text/HTML"
- 
+        self.response.out.write(signature)
+
+app = webapp2.WSG
