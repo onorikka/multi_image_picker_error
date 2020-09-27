@@ -46,4 +46,6 @@ class SignAuth(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = "text/HTML"
         self.response.out.write(signature)
 
-app = webapp2.WSG
+app = webapp2.WSGIApplication([
+    ('/sign_auth', SignAuth)
+], debug=True)
