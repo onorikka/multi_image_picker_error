@@ -60,3 +60,18 @@
                     }
                   )
                     .then((function (requestedName) {
+                          return function (awsKey) {
+                            if (awsKey === requestedName) {
+                              console.log(awsKey, 'successfully uploaded!');
+                            } else {
+                              console.log('Did not re-upload', requestedName, 'because it exists as', awsKey);
+                            }
+                          }
+                        })(name)
+                    );
+              }
+            });
+      }
+    </script>
+  </body>
+</html>
