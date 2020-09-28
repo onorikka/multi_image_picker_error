@@ -1,2 +1,4 @@
 const electron = require('electron')
-// Module 
+// Module to control application life.
+const app = electron.app
+// 
