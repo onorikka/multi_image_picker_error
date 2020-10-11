@@ -27,4 +27,5 @@ function createWindow () {
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
-    // Dereference the window object,
+    // Dereference the window object, usually you would store windows
+    // in an array if your app s
