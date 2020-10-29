@@ -48,4 +48,5 @@ app.on('window-all-closed', function () {
   }
 })
 
-app.on('ac
+app.on('activate', function () {
+  // On OS X it's common to re-c
