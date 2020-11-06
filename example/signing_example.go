@@ -5,4 +5,5 @@ import (
 	"encoding/base64"
 	)
 
-// th
+// this example is using Martini
+m.Get("/sign_auth", func(w http.ResponseWriter, r *
