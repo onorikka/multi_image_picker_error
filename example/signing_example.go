@@ -10,4 +10,5 @@ m.Get("/sign_auth", func(w http.ResponseWriter, r *http.Request) {
     // Todo: Authenticate the request
 		log.Println("signing")
 		qs := r.URL.Query()
-		mac := hmac.New(sha1.New
+		mac := hmac.New(sha1.New, []byte("AWS_SECRET"))
+		mac.Write([]byte(qs.Get("to_sign"
