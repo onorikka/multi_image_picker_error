@@ -12,4 +12,6 @@ m.Get("/sign_auth", func(w http.ResponseWriter, r *http.Request) {
 		qs := r.URL.Query()
 		mac := hmac.New(sha1.New, []byte("AWS_SECRET"))
 		mac.Write([]byte(qs.Get("to_sign")))
-		encoded := base64.StdEncoding.EncodeToString(mac.Sum(n
+		encoded := base64.StdEncoding.EncodeToString(mac.Sum(nil))
+		w.Write([]byte(encoded))
+	})
