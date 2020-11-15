@@ -6,3 +6,5 @@ class AuthSign
   require 'base64'
   require 'hmac-sha1'
 
+  def self.sign_data(details_to_sign)
+    hmac = HMAC::SHA1.new(YOUR_
