@@ -7,4 +7,7 @@ class AuthSign
   require 'hmac-sha1'
 
   def self.sign_data(details_to_sign)
-    hmac = HMAC::SHA1.new(YOUR_
+    hmac = HMAC::SHA1.new(YOUR_AWS_SECRET)
+    hmac.update(details_to_sign)
+
+    Base64.encode64("#{hmac.dig
