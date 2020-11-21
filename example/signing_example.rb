@@ -10,4 +10,10 @@ class AuthSign
     hmac = HMAC::SHA1.new(YOUR_AWS_SECRET)
     hmac.update(details_to_sign)
 
-    Base64.encode64("#{hmac.dig
+    Base64.encode64("#{hmac.digest}").
+           gsub("\n",'')
+  end
+end
+
+
+# c
