@@ -16,4 +16,6 @@ class AuthSign
 end
 
 
-# c
+# controller
+# -*- encoding : utf-8 -*-
+class PagesController < ApplicationCont
