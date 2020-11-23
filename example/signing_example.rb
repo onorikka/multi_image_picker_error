@@ -18,4 +18,5 @@ end
 
 # controller
 # -*- encoding : utf-8 -*-
-class PagesController < ApplicationCont
+class PagesController < ApplicationController
+  # TODO: Do something to authenticate thi
