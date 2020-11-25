@@ -28,4 +28,5 @@ end
 
 
 # secret = "random_test_secret"
-# data_to_sign =
+# data_to_sign = "joesoap"
+# returns 'zEAswdrJ0mrRnwUR9znmuWTyqz4='
