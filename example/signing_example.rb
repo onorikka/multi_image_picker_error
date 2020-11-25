@@ -20,4 +20,6 @@ end
 # -*- encoding : utf-8 -*-
 class PagesController < ApplicationController
   # TODO: Do something to authenticate this request
-  encoded = AuthSign.sign_data(params["to
+  encoded = AuthSign.sign_data(params["to_sign"])
+
+  render :text => encoded, :status => 200 and r
