@@ -6,3 +6,8 @@
   "directories": {
     "example": "example"
   },
+  "scripts": {
+    "test": "ava -v test/*.spec.js"
+  },
+  "repository": {
+    "
