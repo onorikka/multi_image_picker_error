@@ -10,4 +10,6 @@
     "test": "ava -v test/*.spec.js"
   },
   "repository": {
-    "
+    "type": "git",
+    "url": "git://github.com/TTLabs/EvaporateJS.git"
+  
