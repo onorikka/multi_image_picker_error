@@ -12,4 +12,9 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/TTLabs/EvaporateJS.git"
-  
+  },
+  "keywords": [
+    "aws",
+    "amazon",
+    "S3",
+    "
