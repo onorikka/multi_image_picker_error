@@ -24,3 +24,7 @@
     "transfer",
     "acceleration",
     "signature version 4",
+    "v4",
+    "electron",
+    "ReadableFileStream",
+    "fs",
