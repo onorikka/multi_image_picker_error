@@ -28,3 +28,8 @@
     "electron",
     "ReadableFileStream",
     "fs",
+    "stream",
+    "checksum",
+    "Content-MD5"
+  ],
+  "bugs"
