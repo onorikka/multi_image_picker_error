@@ -44,4 +44,6 @@
   "devDependencies": {
     "ava": "^5.1.0",
     "babel-cli": "^6.14.0",
-    
+    "babel-preset-es2015": "^6.14.0",
+    "babel-register": "^6.14.0",
+    "ch
