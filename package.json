@@ -46,4 +46,5 @@
     "babel-cli": "^6.14.0",
     "babel-preset-es2015": "^6.14.0",
     "babel-register": "^6.14.0",
-    "ch
+    "chai": "^3.5.0",
+    "codeclimate-test-reporte
