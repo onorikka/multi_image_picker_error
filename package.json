@@ -55,3 +55,8 @@
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
     "xmldom": "^0.1.22"
+  },
+  "ava": {
+    "require": [
+      "babel-register",
+   
