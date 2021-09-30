@@ -66,4 +66,8 @@
     "include": ["evaporate.js"]
   },
   "babel": {
-    "pr
+    "presets": [
+      "es2015"
+    ]
+  }
+}
