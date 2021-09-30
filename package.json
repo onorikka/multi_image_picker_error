@@ -59,4 +59,8 @@
   "ava": {
     "require": [
       "babel-register",
-   
+      "./test/helpers/browser-env.js"
+    ]
+  },
+  "nyc": {
+  
