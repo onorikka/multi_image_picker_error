@@ -63,4 +63,7 @@
     ]
   },
   "nyc": {
-  
+    "include": ["evaporate.js"]
+  },
+  "babel": {
+    "pr
