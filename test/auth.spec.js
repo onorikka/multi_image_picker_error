@@ -124,3 +124,65 @@ function stringToSignV2(path, method, request) {
   var x_amz_headers = '', result, header_key_array = [];
 
   for (var key in request.x_amz_headers) {
+    if (request.x_amz_headers.hasOwnProperty(key)) {
+      header_key_array.push(key);
+    }
+  }
+  header_key_array.sort();
+
+  header_key_array.forEach(function (header_key) {
+    x_amz_headers += (header_key + ':' + request.x_amz_headers[header_key] + '\n');
+  });
+
+  result = method + '\n' +
+      (request.md5_digest || '') + '\n' +
+      (request.contentType || '') + '\n' +
+      '\n' +
+      x_amz_headers +
+      '' +
+      path;
+
+  return result;
+}
+
+function v4Authorization(signingKey) {
+  return 'AWS4-HMAC-SHA256 Credential=testkey/' + v4DateString() + '/us-east-1/s3/aws4_request, SignedHeaders=host;testid;x-amz-date, Signature=' + signingKey
+}
+function v4DateString() {
+  return new Date().toISOString().slice(0, 10).replace(/-|:/g, '')
+}
+function testV4Authorization(t, initConfig, addCfg) {
+  const config = {
+    signerUrl: 'http://what.ever/signv4',
+    awsSignatureVersion: '4',
+    computeContentMd5: true,
+    cryptoMd5Method: function () { return 'MD5Value'; },
+    cryptoHexEncodedHash256: function (data) { return data; }
+  }
+  const evapConfig = Object.assign({}, config, initConfig)
+
+  return testCommonAuthorization(t, addCfg, evapConfig);
+}
+function testV4ToSign(t, addConfig) {
+  return testV4Authorization(t, {cryptoHexEncodedHash256: function (d) { return d; }}, addConfig)
+      .then(function () {
+        return new Promise(function (resolve) {
+          var qp = params(testRequests[t.context.testId][2].url)
+
+          var result =  {
+            result: qp.to_sign,
+            datetime: qp.datetime
+          }
+
+          resolve(result)
+        })
+      })
+}
+
+function params(url) {
+  var query = url.split("?"),
+      qs = query[1] || '',
+      pairs = qs.split("&"),
+      result = {};
+  pairs.forEach(function (r) {
+    var pr = r.split("=");
