@@ -64,3 +64,63 @@ function testV2ListParts(t, request, amzHeaders, addConfig, maxGetParts, partNum
         name: 'tests'
       })}, addConfig)
   return testV2Authorization(t, evapConfig, addConfig)
+      .then(function () {
+        partNumberMarker = 0
+        t.context.originalUploadObjectKey = t.context.requestedAwsObjectKey
+        t.context.requestedAwsObjectKey = randomAwsKey()
+        let reUpload = Object.assign({}, addConfig, {name: t.context.requestedAwsObjectKey});
+        return evaporateAdd(t, t.context.evaporate, reUpload)
+      })
+      .then(function () {
+        var qp = params(testRequests[t.context.testId][18].url),
+            h = Object.assign({}, amzHeaders, {testId: t.context.testId, 'x-amz-date': qp.datetime}),
+            r = Object.assign({}, request, {x_amz_headers: h}),
+            expected = encodeURIComponent(stringToSignV2('/' + AWS_BUCKET + '/' + t.context.originalUploadObjectKey +
+                '?uploadId=Hzr2sK034dOrV4gMsYK.MMrtWIS8JVBPKgeQ.LWd6H8V2PsLecsBqoA1cG1hjD3G4KRX_EBEwxWWDu8lNKezeA--', 'GET', r))
+
+        return new Promise(function (resolve) {
+          var result = {
+            result: qp.to_sign,
+            expected: expected
+          }
+          resolve(result)
+
+        })
+      })
+}
+function testV4ListParts(t, addConfig, maxGetParts, partNumberMarker, evapConfig) {
+  t.context.partNumberMarker = partNumberMarker
+  t.context.maxGetParts = maxGetParts
+
+  addConfig = Object.assign({}, {file: new File({
+    path: '/tmp/file',
+    size: 29690176,
+    name: 'tests'
+  })}, addConfig)
+  return testV4Authorization(t, evapConfig, addConfig)
+      .then(function () {
+        partNumberMarker = 0
+        t.context.originalUploadObjectKey = t.context.requestedAwsObjectKey
+        t.context.requestedAwsObjectKey = randomAwsKey()
+        let reUpload = Object.assign({}, addConfig, {name: t.context.requestedAwsObjectKey});
+        return evaporateAdd(t, t.context.evaporate, reUpload)
+      })
+      .then(function () {
+        return new Promise(function (resolve) {
+          var qp = params(testRequests[t.context.testId][18].url)
+
+          var result =  {
+            result: qp.to_sign,
+            datetime: qp.datetime
+          }
+
+          resolve(result)
+        })
+      })
+}
+
+function stringToSignV2(path, method, request) {
+
+  var x_amz_headers = '', result, header_key_array = [];
+
+  for (var key in request.x_amz_headers) {
