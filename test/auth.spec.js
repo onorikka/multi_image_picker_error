@@ -258,3 +258,63 @@ test('should correctly create V2 string to sign for truncated list parts', (t) =
   let config = {
     name: t.context.requestedAwsObjectKey,
     file: new File({
+      path: '/tmp/file',
+      size: 29690176,
+      name: randomAwsKey()
+    })
+  }
+  return testV2ListParts(t, {}, {}, config, 5, 0)
+      .then(function (result) {
+        expect(result.result).to.equal(result.expected)
+      })
+})
+
+test('should correctly create V4 string to sign for PUT', (t) => {
+  return testV4ToSign(t)
+    .then(function (result) {
+      expect(result.result).to.equal('AWS4-HMAC-SHA256%0A' + result.datetime + '%0A' +
+          result.datetime.slice(0, 8) + '%2Fus-east-1%2Fs3%2Faws4_request%0APUT%0A%2Fbucket%2F' + t.context.requestedAwsObjectKey +
+              '%0ApartNumber%3D1' +
+              '%26uploadId%3DHzr2sK034dOrV4gMsYK.MMrtWIS8JVBPKgeQ.LWd6H8V2PsLecsBqoA1cG1hjD3G4KRX_EBEwxWWDu8lNKezeA--' +
+              '%0Acontent-md5%3AMD5Value%0Ahost%3As3.amazonaws.com' +
+              '%0Atestid%3A' + encodeURIComponent(t.context.testId) +
+              '%0Ax-amz-date%3A' + result.datetime + '%0A%0Acontent-md5%3Bhost%3Btestid%3Bx-amz-date%0AUNSIGNED-PAYLOAD')
+    })
+})
+test('should correctly create V4 string to sign for PUT with amzHeaders', (t) => {
+  return testV4ToSign(t, {xAmzHeadersCommon: { 'x-custom-header': 'peanuts' }})
+      .then(function (result) {
+        expect(result.result).to.equal('AWS4-HMAC-SHA256%0A' + result.datetime + '%0A' +
+            result.datetime.slice(0, 8) + '%2Fus-east-1%2Fs3%2Faws4_request%0APUT%0A%2Fbucket%2F' + t.context.requestedAwsObjectKey +
+            '%0ApartNumber%3D1' +
+            '%26uploadId%3DHzr2sK034dOrV4gMsYK.MMrtWIS8JVBPKgeQ.LWd6H8V2PsLecsBqoA1cG1hjD3G4KRX_EBEwxWWDu8lNKezeA--' +
+            '%0Acontent-md5%3AMD5Value%0Ahost%3As3.amazonaws.com' +
+            '%0Atestid%3A' + encodeURIComponent(t.context.testId) +
+            '%0Ax-amz-date%3A' + result.datetime + '%0Ax-custom-header%3Apeanuts%0A%0Acontent-md5%3Bhost%3Btestid%3Bx-amz-date%3Bx-custom-header%0AUNSIGNED-PAYLOAD')
+      })
+})
+test('should correctly create V4 string to sign with part-number-marker', (t) => {
+  return testV4ListParts(t, {}, 5, 0)
+      .then(function (result) {
+        expect(testRequests[t.context.testId][19].url).to.match(/part-number-marker=2/)
+      })
+})
+test('should correctly create V4 string to sign for truncated list parts', (t) => {
+
+  let config = {
+    name: t.context.requestedAwsObjectKey,
+    file: new File({
+      path: '/tmp/file',
+      size: 29690176,
+      name: randomAwsKey()
+    })
+  }
+  return testV4ListParts(t, {}, 5, 0)
+      .then(function (result) {
+        expect(result.result).to.equal('AWS4-HMAC-SHA256%0A' + result.datetime + '%0A' +
+            result.datetime.slice(0, 8) + '%2Fus-east-1%2Fs3%2Faws4_request%0AGET%0A%2Fbucket%2F' + t.context.originalUploadObjectKey +
+            '%0Apart-number-marker%3D2%26uploadId%3DHzr2sK034dOrV4gMsYK.MMrtWIS8JVBPKgeQ.LWd6H8V2PsLecsBqoA1cG1hjD3G4KRX_EBEwxWWDu8lNKezeA--' +
+            '%0Ahost%3As3.amazonaws.com%0Atestid%3A' + encodeURIComponent(t.context.testId) +
+            '%0Ax-amz-date%3A' + result.datetime + '%0A%0Ahost%3Btestid%3Bx-amz-date%0A')
+      })
+})
