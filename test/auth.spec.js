@@ -318,3 +318,63 @@ test('should correctly create V4 string to sign for truncated list parts', (t) =
             '%0Ax-amz-date%3A' + result.datetime + '%0A%0Ahost%3Btestid%3Bx-amz-date%0A')
       })
 })
+
+test('should default to V4 signature', (t) => {
+  const config = {
+    signerUrl: 'http://what.ever/signv4'
+  }
+
+  return testBase(t, {}, config)
+      .then(function () {
+        t.fail('Test succeeded but should have failed.')
+      })
+      .catch(function (reason) {
+        expect(reason).to.match(/awsSignatureVersion is 4/)
+      })
+})
+
+test('should fetch V2 authorization from the signerUrl without errors', (t) => {
+  return testV2Authorization(t)
+      .then(function () {
+        expect(t.context.errMessages.length).to.equal(0)
+      })
+})
+test('should fetch V2 authorization from the correct signing Url', (t) => {
+  return testV2Authorization(t)
+      .then(function () {
+        expect(headersForMethod(t, 'GET', /\/signv2.*$/).testId).to.equal(t.context.testId)
+      })
+})
+
+
+test('should fetch V2 authorization from the signerUrl', (t) => {
+  return testV2Authorization(t)
+      .then(function () {
+        expect(t.context.authorization).to.equal(v2Authorization('1234567890123456789012345678'))
+      })
+})
+
+test('should fetch V2 authorization from the signerUrl without canonical_request parameter present', (t) => {
+  return testV4Authorization(t)
+      .then(function () {
+        const x = testRequests[t.context.testId][0];
+        expect(x.url).to.not.match(/canonical_request=/)
+      })
+})
+
+test('should fetch V2 authorization using the signResponseHandler and signerUrl without errors', (t) => {
+  return testV2Authorization(t, {signResponseHandler: signResponseHandler})
+      .then(function () {
+        expect(t.context.errMessages.length).to.equal(0)
+      })
+})
+
+test('should call signResponseHandler() with the correct number of parameters', (t) => {
+  let handler = sinon.spy(signResponseHandler)
+  return testV2Authorization(t, {signResponseHandler: handler})
+      .then(function () {
+        expect(handler.firstCall.args.length).to.eql(3)
+      })
+})
+
+test('should fetch V2 authorization with the correct singer url using the signResponseHandler and signerUrl', (t) => {
