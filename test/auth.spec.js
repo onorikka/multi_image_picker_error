@@ -186,3 +186,75 @@ function params(url) {
       result = {};
   pairs.forEach(function (r) {
     var pr = r.split("=");
+    if (pr.length === 1) {
+      result[pr[0]] = null;
+    } else {
+      result[pr[0]] = pr[1];
+    }
+  });
+  return result;
+}
+
+test.before(() => {
+  sinon.xhr.supportsCORS = true
+
+  global.XMLHttpRequest = sinon.useFakeXMLHttpRequest()
+
+  global.window = {
+   localStorage: {}
+  };
+
+  server = serverCommonCase()
+})
+
+test.beforeEach((t) =>{
+  beforeEachSetup(t, new File({
+      path: '/tmp/file',
+      size: 50,
+      name: 'tests'
+    })
+  )
+
+  delete t.context.cryptoMd5
+  delete t.context.cryptoHexEncodedHash256
+
+})
+
+test('should correctly create V2 string to sign for PUT', (t) => {
+  return testV2ToSign(t)
+      .then(function (result) {
+        expect(result.result).to.equal(result.expected)
+      })
+})
+test('should correctly create V2 string to sign with contentType', (t) => {
+  return testV2ToSign(t, {}, {}, {contentType: 'video/mp4'})
+      .then(function (result) {
+        expect(result.result).to.equal(result.expected)
+      })
+})
+test('should correctly create V2 string to sign for PUT with amzHeaders', (t) => {
+  return testV2ToSign(t, {}, { 'x-custom-header': 'peanuts' }, {xAmzHeadersCommon: { testId: t.context.testId, 'x-custom-header': 'peanuts' }})
+      .then(function (result) {
+        expect(result.result).to.equal(result.expected);
+      })
+})
+test('should correctly create V2 string to sign for PUT with md5 digest', (t) => {
+  return testV2ToSign(t, {md5_digest: 'MD5Value'}, {}, {}, {
+    computeContentMd5: true,
+    cryptoMd5Method: function () { return 'MD5Value'; }
+    })
+      .then(function (result) {
+        expect(result.result).to.equal(result.expected)
+      })
+})
+
+test('should correctly create V2 string to sign with part-number-marker', (t) => {
+  return testV2ListParts(t, {}, {}, {}, 5, 0)
+      .then(function (result) {
+        expect(testRequests[t.context.testId][19].url).to.match(/part-number-marker=2/)
+      })
+})
+test('should correctly create V2 string to sign for truncated list parts', (t) => {
+  let config = {
+    name: t.context.requestedAwsObjectKey,
+    file: new File({
