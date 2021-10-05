@@ -378,3 +378,55 @@ test('should call signResponseHandler() with the correct number of parameters', 
 })
 
 test('should fetch V2 authorization with the correct singer url using the signResponseHandler and signerUrl', (t) => {
+  return testV2Authorization(t, {signResponseHandler: signResponseHandler})
+      .then(function () {
+        expect(headersForMethod(t, 'GET', /\/signv2.*$/).testId).to.equal(t.context.testId)
+      })
+})
+test('should fetch V2 authorization using the signResponseHandler', (t) => {
+  return testV2Authorization(t, {signResponseHandler: signResponseHandler})
+      .then(function () {
+        expect(t.context.authorization).to.equal(v2Authorization('1234567890123456789012345srh'))
+      })
+})
+
+test('should fetch V2 authorization using the customAuthMethod without errors', (t) => {
+   return testV2Authorization(t, {signerUrl: undefined, customAuthMethod: customAuthHandler})
+      .then(function () {
+        expect(t.context.errMessages.length).to.equal(0)
+      })
+})
+test('should fetch V2 authorization using the customAuthMethod with the correct number of parameters', (t) => {
+  const customAuth = sinon.spy(customAuthHandler)
+  return testV2Authorization(t, {signerUrl: undefined, customAuthMethod: customAuth})
+      .then(function () {
+        const a = Array.prototype.slice.call(customAuth.firstCall.args)
+        expect(a.length).to.equal(5)
+      })
+})
+test('should fetch V2 authorization with a customAuthMethod without using signrUrl', (t) => {
+  return testV2Authorization(t, {signerUrl: undefined, customAuthMethod: customAuthHandler})
+      .then(function () {
+        expect(typeof headersForMethod(t, 'GET', /\/signv2.*$/).testId).to.equal('undefined')
+      })
+})
+test('should fetch V2 authorization using the customAuthMethod', (t) => {
+  return testV2Authorization(t, {signerUrl: undefined, customAuthMethod: customAuthHandler})
+      .then(function () {
+        expect(t.context.authorization).to.equal(v2Authorization('123456789012345678901234cstm'))
+      })
+})
+
+test('should fetch V4 authorization from the signerUrl without errors', (t) => {
+  return testV4Authorization(t, {})
+      .then(function () {
+        expect(t.context.errMessages.length).to.equal(0)
+      })
+})
+test('should fetch V4 authorization from the signerUrl and call the correct signing url', (t) => {
+  return testV4Authorization(t, {})
+      .then(function () {
+        expect(headersForMethod(t, 'GET', /\/signv4.*$/).testId).to.equal(t.context.testId)
+      })
+})
+test('should fetch V4 authorization from the signerUrl', (t) => {
