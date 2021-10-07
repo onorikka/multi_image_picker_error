@@ -430,3 +430,50 @@ test('should fetch V4 authorization from the signerUrl and call the correct sign
       })
 })
 test('should fetch V4 authorization from the signerUrl', (t) => {
+  return testV4Authorization(t, {})
+      .then(function () {
+        expect(t.context.authorization).to.equal(v4Authorization('12345678901234567890123456v4'))
+      })
+})
+
+test('should fetch V4 authorization using the signResponseHandler and signerUrl without errors', (t) => {
+  return testV4Authorization(t, {signResponseHandler: signResponseHandler})
+      .then(function () {
+        expect(t.context.errMessages.length).to.equal(0)
+      })
+})
+
+test('should fetch V4 authorization from the signerUrl without canonical_request parameter present', (t) => { 
+  return testV4Authorization(t) 
+      .then(function () { 
+        const x = testRequests[t.context.testId][0];
+        expect(x.url).to.not.match(/canonical_request=/) 
+      })
+})
+
+test('should fetch V4 authorization from the signerUrl with canonical_request parameter present, if enabled', (t) => {
+  return testV4Authorization(t, {sendCanonicalRequestToSignerUrl: true})
+      .then(function () {
+        const x = testRequests[t.context.testId][0];
+        expect(x.url).to.match(/canonical_request=/)
+      })
+})
+
+test('should fetch V4 authorization using the signResponseHandler and signerUrl and call the correct signing url', (t) => {
+  return testV4Authorization(t, {signResponseHandler: signResponseHandler})
+      .then(function () {
+        expect(headersForMethod(t, 'GET', /\/signv4.*$/).testId).to.equal(t.context.testId)
+      })
+})
+test('should fetch V4 authorization using the signResponseHandler and signerUrl', (t) => {
+  return testV4Authorization(t, {signResponseHandler: signResponseHandler})
+      .then(function () {
+        expect(t.context.authorization).to.equal(v4Authorization('1234567890123456789012345srh'))
+      })
+})
+
+test('should fetch V4 authorization using the customAuthMethod without errors', (t) => {
+  return testV4Authorization(t, {signerUrl: undefined, customAuthMethod: customAuthHandler})
+      .then(function () {
+        expect(t.context.errMessages.length).to.equal(0)
+      })
