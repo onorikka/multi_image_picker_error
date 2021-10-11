@@ -477,3 +477,65 @@ test('should fetch V4 authorization using the customAuthMethod without errors', 
       .then(function () {
         expect(t.context.errMessages.length).to.equal(0)
       })
+})
+test('should fetch V4 authorization using the customAuthMethod with the correct number of parameters', (t) => {
+  const customAuth = sinon.spy(customAuthHandler)
+  return testV4Authorization(t, {signerUrl: undefined, customAuthMethod: customAuth})
+      .then(function () {
+        const a = Array.prototype.slice.call(customAuth.firstCall.args)
+        expect(a.length).to.equal(5)
+      })
+})
+test('should fetch V4 authorization using the customAuthMethod', (t) => {
+  return testV4Authorization(t, {signerUrl: undefined, customAuthMethod: customAuthHandler})
+      .then(function () {
+        expect(typeof headersForMethod(t, 'GET', /\/signv4.*$/).testId).to.equal('undefined')
+      })
+})
+test('should fetch V4 authorization using the customAuthMethod without signerUrl', (t) => {
+  return testV4Authorization(t, {signerUrl: undefined, customAuthMethod: customAuthHandler})
+      .then(function () {
+        expect(t.context.authorization).to.equal(v4Authorization('123456789012345678901234cstm'))
+      })
+})
+
+test('should fetch authorization using a custom Authorization Method (awsLambda)', (t) => {
+  let AWSLambda = function (payload) {
+    this.payload = payload;
+  }
+  AWSLambda.prototype.invoke = function (params, cb) {
+    const data = {
+      Payload: '"' + this.payload + '"'
+    }
+    cb('', data)
+  }
+
+  let authorizationMethod = function (signParams, signHeaders, stringToSign, dateString) {
+    return new Promise(function(resolve, reject) {
+      new AWSLambda('abcdLambdaV2').invoke({
+        FunctionName: function () {},
+        InvocationType: 'RequestResponse',
+        Payload: JSON.stringify({
+          to_sign: stringToSign,
+          sign_params: signParams,
+          sign_headers: signHeaders
+        })
+      }, function (err, data) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(JSON.parse(data.Payload));
+      });
+    });
+  };
+
+  return testV2Authorization(t, {customAuthMethod: authorizationMethod, signerUrl: undefined,})
+      .then(function () {
+        expect(t.context.errMessages.length).to.equal(0)
+      })
+})
+
+test('should fetch V4 authorization with header "x-amz-content-sha256" for INIT', (t) => {
+  return testV4Authorization(t)
+      .then(function () {
+        expect(headersForMethod(t, 'POST', /^.*\?uploads.*$/)['x-amz-content-sha256']).to.equal('')
