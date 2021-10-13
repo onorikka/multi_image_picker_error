@@ -539,3 +539,56 @@ test('should fetch V4 authorization with header "x-amz-content-sha256" for INIT'
   return testV4Authorization(t)
       .then(function () {
         expect(headersForMethod(t, 'POST', /^.*\?uploads.*$/)['x-amz-content-sha256']).to.equal('')
+      })
+})
+test('should fetch V4 authorization with header "x-amz-content-sha256" for PUT', (t) => {
+  return testV4Authorization(t)
+      .then(function () {
+        expect(headersForMethod(t, 'PUT', /^.*$/)['x-amz-content-sha256']).to.equal('UNSIGNED-PAYLOAD')
+      })
+})
+test('should fetch V4 authorization with header "x-amz-content-sha256" for COMPLETE', (t) => {
+  return testV4Authorization(t)
+      .then(function () {
+        expect(headersForMethod(t, 'POST', /.*\?uploadId.*$/)['x-amz-content-sha256']).to.equal('<CompleteMultipartUpload><Part><PartNumber>1</PartNumber><ETag></ETag></Part></CompleteMultipartUpload>')
+      })
+})
+
+// Auth Error Handling
+
+test('should abort on 404 in V2 Signature PUT should return errors and call the correct signer url', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+
+  return testV2Authorization(t)
+      .then(function () {
+            t.fail('Cancel promise should have rejected, but did not.')
+      },
+      function () {
+        expect(headersForMethod(t, 'GET', /\/signv2.*$/).testId).to.equal(t.context.testId)
+      })
+})
+test('should abort on 404 in V2 Signature PUT should return errors and return error messages', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+
+  return testV2Authorization(t)
+      .then(function () {
+        t.fail('Cancel promise should have rejected, but did not.')
+      },
+      function (reason) {
+        expect(t.context.errMessages.join(',')).to.match(/404 error on part PUT. The part and the file will abort/i)
+      })
+})
+test('should abort on 404 in V2 Signature PUT promise should reject with reason', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+
+  return testV2Authorization(t)
+      .then(function () {
