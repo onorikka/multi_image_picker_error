@@ -643,3 +643,58 @@ test('should return error when listParts fails in Abort after part upload failur
           },
           function (reason) {
             expect(headersForMethod(t, 'GET', /\/signv2.*$/).testId).to.equal(t.context.testId)
+          })
+})
+test('should return error when listParts fails in Abort after part upload failure (404) and return error messages (1)', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+  t.context.getPartsStatus = 403
+
+  return testV2Authorization(t)
+      .then(function () {
+            t.fail('Expected an error but found none: ' + t.context.testId)
+          },
+          function (reason) {
+            expect(t.context.errMessages.join(',')).to.match(/404 error on part PUT\. The part and the file will abort/i)
+          })
+})
+
+// signParams and signHeaders
+test('should apply signParams in the V2 signature request', (t) => {
+  return testV2Authorization(t, {
+    awsSignatureVersion: '2',
+    signParams: { 'signing-auth': 'token' }
+  })
+      .then(function () {
+        expect(testRequests[t.context.testId][0].url).to.match(/signing-auth=token/)
+      })
+})
+test('should pass signHeaders to the V2 signature request', (t) => {
+  return testV2Authorization(t, {
+    awsSignatureVersion: '2',
+    signHeaders: { 'signing-auth': 'token' }
+  })
+      .then(function () {
+        expect(headersForMethod(t, 'GET', /\/sign.*$/)['signing-auth']).to.equal('token')
+      })
+})
+test('should apply signParams in the V4 signature request', (t) => {
+  return testV4Authorization(t, {
+    awsSignatureVersion: '2',
+    signParams: { 'signing-auth': 'token' }
+  })
+      .then(function () {
+        expect(testRequests[t.context.testId][0].url).to.match(/signing-auth=token/)
+      })
+})
+test('should pass signHeaders to the V4 signature request', (t) => {
+  return testV4Authorization(t, {
+    awsSignatureVersion: '2',
+    signHeaders: { 'signing-auth': 'token' }
+  })
+      .then(function () {
+        expect(headersForMethod(t, 'GET', /\/sign.*$/)['signing-auth']).to.equal('token')
+      })
+})
