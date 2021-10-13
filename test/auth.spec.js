@@ -592,3 +592,54 @@ test('should abort on 404 in V2 Signature PUT promise should reject with reason'
 
   return testV2Authorization(t)
       .then(function () {
+            t.fail('Cancel promise should have rejected, but did not.')
+          },
+          function (reason) {
+            expect(reason).to.match(/part failing to upload/i)
+          })
+})
+
+test('should return error when ABORT fails and call the correct signing url', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+  t.context.deleteStatus = 403
+
+  return testV2Authorization(t)
+      .then(function () {
+            t.fail('Expected an error but found none: ' + t.context.testId)
+          }, function (reason) {
+            expect(headersForMethod(t, 'GET', /\/signv2.*$/).testId).to.equal(t.context.testId)
+          }
+      )
+})
+test('should return error when ABORT fails and return error messages (1)', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+  t.context.deleteStatus = 403
+
+  return testV2Authorization(t)
+      .then(function () {
+            t.fail('Expected an error but found none: ' + t.context.testId)
+          }, function (reason) {
+        expect(t.context.errMessages.join(',')).to.match(/status:403/)
+          }
+      )
+})
+
+test('should return error when listParts fails in Abort after part upload failure (404) and call the signing url', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+  t.context.getPartsStatus = 403
+
+  return testV2Authorization(t)
+      .then(function () {
+            t.fail('Expected an error but found none: ' + t.context.testId)
+          },
+          function (reason) {
+            expect(headersForMethod(t, 'GET', /\/signv2.*$/).testId).to.equal(t.context.testId)
