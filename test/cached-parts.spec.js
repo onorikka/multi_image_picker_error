@@ -66,3 +66,66 @@ test.serial('should check for parts when re-uploading a cached file with S3 requ
   return testCachedParts(t, {}, 1, 0, { mockLocalStorage: true })
       .then(function () {
         expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,PUT:partNumber=2,complete,check for parts,PUT:partNumber=2,complete')
+      })
+})
+test.serial('should not check for parts when re-uploading a cached file with S3 requests in the correct order, no localStorage, not mocking', (t) => {
+  global['localStorage'] = undefined
+  return testCachedParts(t, {}, 1, 0)
+      .then(function () {
+        global.localStorage = storage
+        expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,PUT:partNumber=2,complete,initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('should check for parts when re-uploading a cached file with S3 requests callback complete with first param instance of xhr', (t) => {
+  return testCachedParts(t, {}, 1, 0)
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[0]).to.be.instanceOf(sinon.FakeXMLHttpRequest)
+      })
+})
+test('should check for parts when re-uploading a cached file with S3 requests callback complete with second param the new awsKey', (t) => {
+  return testCachedParts(t, {}, 1, 0)
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[1]).to.equal(t.context.originalUploadObjectKey)
+      })
+})
+test('should check for parts when re-uploading a cached file and callback with the original object name', (t) => {
+
+  return testCachedParts(t, {
+        nameChanged: sinon.spy()
+      }, 1, 0)
+      .then(function () {
+        expect(t.context.config.nameChanged.withArgs(t.context.originalUploadObjectKey).calledOnce).to.be.true
+      })
+})
+
+test('should only upload remaining parts for an interrupted upload', (t) => {
+  return testCachedParts(t, { file: new File({
+    path: '/tmp/file',
+    size: 29690176,
+    name: randomAwsKey()
+  })
+  }, 3, 0)
+      .then(function () {
+        expect(requestOrder(t)).to.equal(
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,PUT:partNumber=3,PUT:partNumber=4,PUT:partNumber=5,complete,' +
+            'check for parts,check for parts,check for parts,' +
+            'PUT:partNumber=4,PUT:partNumber=5,complete')
+      })
+})
+test('should check for parts when re-uploading a cached file when getParts 404s and callback started', (t) => {
+  t.context.getPartsStatus = 404
+
+  return testCachedParts(t, {}, 1, 0)
+      .then(function () {
+        expect(t.context.config.started.calledOnce).to.be.true
+      })
+})
+test('should check for parts when re-uploading a cached file when getParts 404s and not callback with new object name', (t) => {
+  t.context.getPartsStatus = 404
+
+  return testCachedParts(t, {
+    nameChanged: sinon.spy()
+  }, 1, 0)
+      .then(function () {
+        expect(t.context.config.nameChanged.called).to.be.false
+      })
