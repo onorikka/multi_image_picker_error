@@ -129,3 +129,75 @@ test('should check for parts when re-uploading a cached file when getParts 404s 
       .then(function () {
         expect(t.context.config.nameChanged.called).to.be.false
       })
+})
+test('should check for parts when re-uploading a cached file when getParts 404s and not return the second name', (t) => {
+  t.context.getPartsStatus = 404
+
+  return testCachedParts(t, {}, 1, 0)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.not.equal(t.context.requestedAwsObjectKey)
+      })
+})
+test('should check for parts when re-uploading a cached file when getParts 404s and return the original name', (t) => {
+  t.context.getPartsStatus = 404
+
+  return testCachedParts(t, {}, 1, 0)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.equal(t.context.originalUploadObjectKey)
+      })
+})
+test('should check for parts when re-uploading a cached file when getParts 404s in the correct order', (t) => {
+  t.context.getPartsStatus = 404
+  return testCachedParts(t, {}, 1, 0)
+      .then(function () {
+        expect(requestOrder(t)).to.equal(
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete,' +
+            'check for parts,' +
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('should check for parts when re-uploading a cached file when getParts 404s with the correct status', (t) => {
+  t.context.getPartsStatus = 404
+  return testCachedParts(t, {}, 1, 0)
+      .then(function () {
+        expect(testRequests[t.context.testId][9].status).to.equal(404)
+      })
+})
+test('should check for parts when re-uploading a cached file when getParts 404s callback complete with first param instance of xhr', (t) => {
+  t.context.getPartsStatus = 404
+  return testCachedParts(t, {}, 1, 0)
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[0]).to.be.instanceOf(sinon.FakeXMLHttpRequest)
+      })
+})
+test('should check for parts when re-uploading a cached file when getParts 404s callback complete with second param the new awsKey', (t) => {
+  t.context.getPartsStatus = 404
+  return testCachedParts(t, {}, 1, 0)
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[1]).to.equal(t.context.originalUploadObjectKey)
+      })
+})
+
+test('should check for parts when re-uploading a cached file, when getParts returns none and callback started', (t) => {
+  return testCachedParts(t, { }, 0, 0)
+      .then(function () {
+        expect(t.context.config.started.calledOnce).to.be.true
+      })
+})
+test('should check for parts when re-uploading a cached file, when getParts returns none and callback with partial name', (t) => {
+
+  return testCachedParts(t, {
+    nameChanged: sinon.spy()
+  }, 0, 0)
+      .then(function () {
+        expect(t.context.config.nameChanged.withArgs(t.context.originalUploadObjectKey).calledOnce).to.be.true
+      })
+})
+test('should check for parts when re-uploading a cached file, when getParts returns none in the correct order', (t) => {
+  return testCachedParts(t, { }, 0, 0)
+      .then(function () {
+        expect(requestOrder(t)).to.equal(
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete,' +
+            'check for parts,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
