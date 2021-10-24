@@ -201,3 +201,63 @@ test('should check for parts when re-uploading a cached file, when getParts retu
             'check for parts,PUT:partNumber=1,PUT:partNumber=2,complete')
       })
 })
+test('should check for parts when re-uploading a cached file, when getParts returns none and return the second name', (t) => {
+  return testCachedParts(t, { }, 0, 0)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.not.equal(t.context.requestedAwsObjectKey)
+      })
+})
+test('should check for parts when re-uploading a cached file, when getParts returns none and return the partial name', (t) => {
+  return testCachedParts(t, { }, 0, 0)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.equal(t.context.originalUploadObjectKey)
+      })
+})
+
+test('should check for parts when re-uploading a cached file, when getParts is not truncated and callback started', (t) => {
+  return testCachedParts(t, {
+    file: new File({
+      path: '/tmp/file',
+      size: 50,
+      name: randomAwsKey()
+    })
+  }, 1, 0)
+      .then(function () {
+        expect(t.context.config.started.calledOnce).to.be.true
+      })
+})
+test('should check for parts when re-uploading a cached file, when getParts is not truncated in the correct order', (t) => {
+  return testCachedParts(t, {
+    file: new File({
+      path: '/tmp/file',
+      size: 50,
+      name: randomAwsKey()
+    })
+  }, 1, 0)
+      .then(function () {
+        expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,complete,check for parts,complete')
+      })
+})
+test('should check for parts when re-uploading a cached file, when getParts is not truncated and return the correct file upload ID', (t) => {
+  return testCachedParts(t, {
+    file: new File({
+      path: '/tmp/file',
+      size: 50,
+      name: randomAwsKey()
+    })
+  }, 1, 0)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.not.equal(t.context.requestedAwsObjectKey)
+      })
+})
+test('should check for parts when re-uploading a cached file, when getParts is not truncated and return the partial name', (t) => {
+  return testCachedParts(t, {
+    file: new File({
+      path: '/tmp/file',
+      size: 50,
+      name: randomAwsKey()
+    })
+  }, 1, 0)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.equal(t.context.originalUploadObjectKey)
+      })
