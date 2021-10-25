@@ -372,3 +372,40 @@ test('should retry check for parts twice if status is non-404 error', (t) => {
         expect(requestOrder(t)).to.equal(
             'initiate,PUT:partNumber=1,PUT:partNumber=2,complete,' +
             'check for parts,check for parts,' +
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('should not callback with new object name if status is non-404 error', (t) => {
+  t.context.getPartsStatus = 403
+
+  return testCachedParts(t, {
+    nameChanged: sinon.spy()
+  })
+      .then(function () {
+        expect(t.context.config.nameChanged.called).to.be.false
+      })
+})
+test('should not retry check for remaining uploaded parts if status is 404 callback complete with first param instance of xhr', (t) => {
+  t.context.getPartsStatus = 403
+  return testCachedParts(t)
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[0]).to.be.instanceOf(sinon.FakeXMLHttpRequest)
+      })
+})
+test('should not retry check for remaining uploaded parts if status is 404 callback complete with second param the new awsKey', (t) => {
+  t.context.getPartsStatus = 403
+  return testCachedParts(t)
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[1]).to.equal(t.context.originalUploadObjectKey)
+      })
+})
+
+// getParts (xAmzHeadersCommon)
+test('should set xAmzHeadersCommon when re-uploading a cached file', (t) => {
+  return testCachedParts(t, {
+    xAmzHeadersCommon: { 'x-custom-header': 'reused' }
+  }, 0, 0)
+      .then(function () {
+        expect(headersForMethod(t, 'GET', /.*\?uploadId.*$/)['x-custom-header']).to.equal('reused')
+      })
+})
