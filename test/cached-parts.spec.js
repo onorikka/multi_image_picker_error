@@ -318,3 +318,57 @@ test('should check for parts when re-uploading a cached file, when getParts is t
       name: randomAwsKey()
     })
   }
+
+  let addConfig = Object.assign({}, Parts5AddConfig, {
+    computeContentMd5: true,
+    cryptoMd5Method: function (data) {
+      return 'md5Checksum';
+    }
+  })
+
+  return testCachedParts(t, addConfig, 5, 0)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.not.equal(t.context.requestedAwsObjectKey)
+      })
+})
+test('should check for parts when re-uploading a cached file, when getParts is truncated and return the partial name', (t) => {
+  const Parts5AddConfig = {
+    name: t.context.requestedAwsObjectKey,
+    file: new File({
+      path: '/tmp/file',
+      size: 29690176,
+      name: randomAwsKey()
+    })
+  }
+
+  let addConfig = Object.assign({}, Parts5AddConfig, {
+    computeContentMd5: true,
+    cryptoMd5Method: function (data) {
+      return 'md5Checksum';
+    }
+  })
+
+  return testCachedParts(t, addConfig, 5, 0)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.equal(t.context.originalUploadObjectKey)
+      })
+})
+
+// Retry on error
+test('should not retry check for remaining uploaded parts if status is 404', (t) => {
+  t.context.getPartsStatus = 404
+  return testCachedParts(t, {})
+      .then(function () {
+        expect(requestOrder(t)).to.equal(
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete,' +
+            'check for parts,' +
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('should retry check for parts twice if status is non-404 error', (t) => {
+  t.context.getPartsStatus = 403
+  return testCachedParts(t, {})
+      .then(function () {
+        expect(requestOrder(t)).to.equal(
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete,' +
+            'check for parts,check for parts,' +
