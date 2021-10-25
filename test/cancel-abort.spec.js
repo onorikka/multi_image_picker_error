@@ -75,3 +75,41 @@ test.beforeEach((t) => {
 test('should Cancel an upload calling started once', (t) => {
   return testCancel(t)
       .then(function () {
+        expect(t.context.config.started.callCount).to.equal(1)
+      })
+})
+test('should Cancel an upload calling cancelled once', (t) => {
+  return testCancel(t)
+      .then(function () {
+        expect(t.context.config.cancelled.callCount).to.equal(1)
+      })
+})
+test('should Cancel an upload in the correct request order', (t) => {
+  return testCancel(t)
+      .then(function () {
+        expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,PUT:partNumber=2,complete,cancel')
+      })
+})
+test('should Cancel an upload and resolve the cancel promise', (t) => {
+  return testCancel(t)
+      .then(function () {
+        t.context.cancelPromise
+            .catch(t.fail)
+      })
+})
+test('should Cancel an upload and reduce evaporating count to 0', (t) => {
+  const config = {
+    file: new File({
+      path: '/tmp/file',
+      size: 99000000, // we need lots of parts so that we exceed the maxConcurrentParts
+      name: randomAwsKey()
+    })
+  }
+  return testCancel(t, config)
+      .then(function () {
+        expect(t.context.evaporate.evaporatingCount).to.equal(0)
+      })
+})
+
+test('should Cancel an upload after it is paused', (t) => {
+  const config = {
