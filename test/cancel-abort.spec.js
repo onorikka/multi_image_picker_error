@@ -113,3 +113,57 @@ test('should Cancel an upload and reduce evaporating count to 0', (t) => {
 
 test('should Cancel an upload after it is paused', (t) => {
   const config = {
+    file: new File({
+          path: '/tmp/file',
+          size: 990000000, // we need lots of parts so that we exceed the maxConcurrentParts
+          name: randomAwsKey()
+        }),
+    cancelled: sinon.spy()
+  }
+
+  t.context.pauseUpload = true
+  t.context.pausedPromise = defer()
+
+  t.context.pausedPromise.promise
+      .then(
+          function () {
+            t.context.cancel()
+          })
+
+  return testCommon(t, config)
+      .then(
+          function () {
+            t.fail('Expected upload to fail but it did not.')
+          },
+          function (reason) {
+            expect(reason).to.match(/aborted/i)
+          })
+})
+test('should Cancel an upload after it is paused if the cancel fails', (t) => {
+  t.context.deleteStatus = 403
+
+  const config = {
+    file: new File({
+      path: '/tmp/file',
+      size: 990000000, // we need lots of parts so that we exceed the maxConcurrentParts
+      name: randomAwsKey()
+    }),
+    cancelled: sinon.spy()
+  }
+
+  t.context.pauseUpload = true
+  t.context.pausedPromise = defer()
+
+  t.context.pausedPromise.promise
+      .then(
+          function () {
+            t.context.cancel()
+          })
+
+  return testCommon(t, config)
+      .then(
+          function () {
+            t.fail('Expected upload to fail but it did not.')
+          },
+          function (reason) {
+            expect(reason).to.match(/Error aborting upload/i)
