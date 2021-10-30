@@ -167,3 +167,61 @@ test('should Cancel an upload after it is paused if the cancel fails', (t) => {
           },
           function (reason) {
             expect(reason).to.match(/Error aborting upload/i)
+          })
+})
+
+test.todo('should Cancel an upload after it is force paused')
+test.todo('should cancel an upload while parts are uploading')
+
+// Cancel (xAmzHeadersCommon)
+test('should set xAmzHeadersCommon on Cancel', (t) => {
+  const config = {
+    xAmzHeadersCommon: {
+      'x-custom-header': 'stopped'
+    }
+  }
+
+  t.context.retry = function (type) {
+    return ['cancel', 'get parts'].indexOf(type) > -1
+  }
+
+  return testCancel(t, config)
+      .then(function () {
+        t.context.cancel()
+            .then(function () {
+              expect(headersForMethod(t, 'DELETE')['x-custom-header']).to.equal('stopped')
+            })
+      })
+})
+
+// retry
+test('should not retry Cancel but trigger Initiate if status is 404 with started callback', (t) => {
+  t.context.deleteStatus = 404
+  return testCancel(t)
+      .then(function () {
+        expect(t.context.config.started.callCount).to.equal(1)
+      })
+})
+test('should not retry Cancel but trigger Initiate if status is 404 with cancelled callback', (t) => {
+  t.context.deleteStatus = 404
+  return testCancel(t)
+      .then(function () {
+        expect(t.context.config.cancelled.callCount).to.equal(1)
+      })
+})
+test('should not retry Cancel but trigger Initiate if status is 404 in the correct order', (t) => {
+  t.context.deleteStatus = 404
+  return testCancel(t)
+      .then(function () {
+        expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,PUT:partNumber=2,complete,cancel')
+      })
+})
+
+test('should retry Cancel twice if status is non-404 error with started callback', (t) => {
+  t.context.deleteStatus = 403
+  return testCancel(t)
+      .then(function () {
+        expect(t.context.config.started.callCount).to.equal(1)
+      })
+})
+test('should retry Cancel twice if status is non-404 error with cancelled callback', (t) => {
