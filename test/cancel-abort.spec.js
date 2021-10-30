@@ -225,3 +225,16 @@ test('should retry Cancel twice if status is non-404 error with started callback
       })
 })
 test('should retry Cancel twice if status is non-404 error with cancelled callback', (t) => {
+  t.context.deleteStatus = 403
+  return testCancel(t)
+      .then(function () {
+        expect(t.context.config.cancelled.callCount).to.equal(0)
+      })
+})
+test('should retry Cancel twice if status is non-404 error in the correct order', (t) => {
+  t.context.deleteStatus = 403
+  return testCancel(t)
+      .then(function () {
+        expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,PUT:partNumber=2,complete,cancel,cancel')
+      })
+})
