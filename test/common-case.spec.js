@@ -186,3 +186,73 @@ test('should pass xAmzHeadersAtComplete headers', (t) => {
   return testCommon(t, {
     xAmzHeadersAtComplete: { 'x-custom-header': 'eindelijk' }
   })
+      .then(function () {
+        expect(headersForMethod(t, 'POST', /.*\?uploadId.*$/)['x-custom-header']).to.equal('eindelijk')
+      })
+})
+
+test('should not use xAmzHeadersCommon headers for Initiate', (t) => {
+  return testCommon(t, {
+    xAmzHeadersAtInitiate: { 'x-custom-header': 'peanuts' },
+    xAmzHeadersCommon: { 'x-custom-header': 'phooey' }
+  })
+      .then(function () {
+        expect(headersForMethod(t, 'POST', /^.*\?uploads.*$/)['x-custom-header']).to.equal('peanuts')
+      })
+})
+test('should use xAmzHeadersCommon headers for Parts', (t) => {
+  return testCommon(t, {
+    xAmzHeadersCommon: { 'x-custom-header': 'phooey' }
+  })
+      .then(function () {
+        expect(headersForMethod(t, 'PUT')['x-custom-header']).to.equal('phooey')
+      })
+})
+test('should use xAmzHeadersCommon headers for Complete', (t) => {
+  return testCommon(t, {
+    xAmzHeadersCommon: { 'x-custom-header': 'phooey' }
+  })
+      .then(function () {
+        expect(headersForMethod(t, 'POST', /.*\?uploadId.*$/)['x-custom-header']).to.equal('phooey')
+      })
+})
+
+test('should let xAmzHeadersCommon override xAmzHeadersAtUpload (1)', (t) => {
+  return testCommon(t, {
+    xAmzHeadersAtUpload: { 'x-custom-header1': 'phooey' },
+    xAmzHeadersCommon: { 'x-custom-header3': 'phooey' }
+  })
+      .then(function () {
+        expect(headersForMethod(t, 'PUT')['x-custom-header3']).to.equal('phooey')
+      })
+})
+test('should let xAmzHeadersCommon override xAmzHeadersAtUpload (2)', (t) => {
+  return testCommon(t, {
+    xAmzHeadersAtUpload: { 'x-custom-header1': 'phooey' },
+    xAmzHeadersCommon: { 'x-custom-header3': 'phooey' }
+  })
+      .then(function () {
+        expect(headersForMethod(t, 'PUT')['x-custom-header1']).to.equal(undefined)
+      })
+})
+test('should let xAmzHeadersCommon override xAmzHeadersAtComplete (1)', (t) => {
+  return testCommon(t, {
+    xAmzHeadersAtComplete: { 'x-custom-header2': 'phooey' },
+    xAmzHeadersCommon: { 'x-custom-header3': 'phooey' }
+  })
+      .then(function () {
+        expect(headersForMethod(t, 'POST', /.*\?uploadId.*$/)['x-custom-header3']).to.equal('phooey')
+      })
+})
+test('should let xAmzHeadersCommon override xAmzHeadersAtComplete (2)', (t) => {
+  return testCommon(t, {
+    xAmzHeadersAtComplete: { 'x-custom-header2': 'phooey' },
+    xAmzHeadersCommon: { 'x-custom-header3': 'phooey' }
+  })
+      .then(function () {
+        expect(headersForMethod(t, 'POST', /.*\?uploadId.*$/)['x-custom-header2']).to.equal(undefined)
+      })
+})
+
+// Retry on Errors
+test('should retry Initiate', (t) => {
