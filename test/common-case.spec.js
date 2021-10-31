@@ -113,3 +113,76 @@ test('should upload a file and callback complete with first param instance of xh
         expect(t.context.config.complete.firstCall.args[0]).to.be.instanceOf(sinon.FakeXMLHttpRequest)
       })
 })
+test('should upload a file and callback complete with second param the awsKey', (t) => {
+  return testCommon(t)
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[1]).to.equal(t.context.requestedAwsObjectKey)
+      })
+})
+test('should upload a file and not callback with a changed object name', (t) => {
+  return testCommon(t, {nameChanged: sinon.spy()})
+      .then(function () {
+        expect(t.context.config.nameChanged.callCount).to.equal(0)
+      })
+})
+
+// md5Digest tests
+test('V2 should call cryptoMd5 when uploading a file with defaults', (t) => {
+  return testMd5V2(t)
+      .then(function () {
+        expect(t.context.cryptoMd5.callCount).to.equal(2)
+      })
+})
+test('V2 should upload a file with MD5Digests with S3 requests in the correct order', (t) => {
+  return testMd5V2(t)
+      .then(function () {
+        expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('V2 should upload a file and return the correct file upload ID', (t) => {
+  return testMd5V2(t)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.equal(t.context.requestedAwsObjectKey)
+      })
+})
+
+test('V4 should call cryptoMd5 when uploading a file with defaults', (t) => {
+  return testMd5V4(t)
+      .then(function () {
+        expect(t.context.cryptoMd5.callCount).to.equal(2)
+      })
+})
+test('V4 should upload a file with MD5Digests with S3 requests in the correct order', (t) => {
+  return testMd5V4(t)
+      .then(function () {
+        expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('V4 should upload a file and return the correct file upload ID', (t) => {
+  return testMd5V4(t)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.equal(t.context.requestedAwsObjectKey)
+      })
+})
+
+// Cover xAmzHeader Options
+test('should pass xAmzHeadersAtInitiate headers', (t) => {
+  return testCommon(t, {
+    xAmzHeadersAtInitiate: { 'x-custom-header': 'peanuts' }
+  })
+      .then(function () {
+        expect(headersForMethod(t, 'POST', /^.*\?uploads.*$/)['x-custom-header']).to.equal('peanuts')
+      })
+})
+test('should pass xAmzHeadersAtUpload headers', (t) => {
+  return testCommon(t, {
+    xAmzHeadersAtUpload: { 'x-custom-header': 'phooey' }
+  })
+      .then(function () {
+        expect(headersForMethod(t, 'PUT')['x-custom-header']).to.equal('phooey')
+      })
+})
+test('should pass xAmzHeadersAtComplete headers', (t) => {
+  return testCommon(t, {
+    xAmzHeadersAtComplete: { 'x-custom-header': 'eindelijk' }
+  })
