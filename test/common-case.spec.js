@@ -256,3 +256,71 @@ test('should let xAmzHeadersCommon override xAmzHeadersAtComplete (2)', (t) => {
 
 // Retry on Errors
 test('should retry Initiate', (t) => {
+  t.context.retry = function (type) {
+    return type === 'init'
+  }
+
+  return testCommon(t, {})
+      .then(function () {
+        expect(['initiate,initiate,PUT:partNumber=1,PUT:partNumber=2,complete',
+          'initiate,initiate,PUT:partNumber=2,PUT:partNumber=1,complete']).to.include('initiate,initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+
+test('should retry Complete', (t) => {
+  t.context.retry = function (type) {
+    return type === 'complete'
+  }
+
+  return testCommon(t, {})
+      .then(function () {
+        expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,PUT:partNumber=2,complete,complete')
+      })
+})
+
+test('should retry Upload Part', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+
+  return testCommon(t, { file: new File({
+        path: '/tmp/file',
+        size: 50,
+        name: 'tests'
+      })
+    })
+      .then(function () {
+        expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,PUT:partNumber=1,complete')
+      })
+})
+
+// Retry get authorization / Initiate Upload
+test('should retry get signature for common case: Initiate, Put, Complete (authorization), for non-permission responses', (t) => {
+  return testSignerErrors(t, 500)
+      .then(function (result) {
+        expect(result).to.equal('sign,sign,initiate,sign,sign,PUT:partNumber=1,sign,sign,complete')
+      })
+})
+test('should not retry get signature for common case: Initiate, Put, Complete (authorization), for permission 401', (t) => {
+  return testSignerErrors(t, 401)
+      .then(function (result) {
+        t.fail('Expected test to fail but received: ' + result)
+      })
+      .catch(function (reason) {
+        expect(reason).to.equal('Permission denied status:401 sign')
+      })
+})
+test('should not retry get signature for common case: Initiate, Put, Complete (authorization), for permission 403', (t) => {
+  return testSignerErrors(t, 403)
+      .then(function (result) {
+        t.fail('Expected test to fail but received: ' + result)
+      })
+      .catch(function (reason) {
+        expect(reason).to.equal('Permission denied status:403 sign')
+      })
+})
+test('should not retry customAuthMethod for common case: Initiate, Put, Complete (authorization) if it rejects', (t) => {
+  const customRejectingAuthHandler = function  () {
+    return Promise.reject('Permission denied');
+  }
+  return testSignerErrors(t, 403, {signerUrl: undefined, customAuthMethod: customRejectingAuthHandler})
