@@ -378,3 +378,31 @@ test('should call the correctly ordered requests if PUT part 404s', (t) => {
 })
 test('should fail with a message when PUT part 404s and DELETE fails', (t) => {
   t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+  t.context.deleteStatus = 403
+
+  return testCommon(t, { cancelled: sinon.spy() })
+      .then(function () {
+        t.fail('Expected upload to fail but it did not.')
+      })
+      .catch(function (reason) {
+        expect(reason).to.match(/Error aborting upload/i)
+      })
+})
+test('should fail with the correctly ordered requests when PUT part 404s and DELETE fails', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+  t.context.deleteStatus = 403
+
+  return testCommon(t, { cancelled: sinon.spy() })
+      .then(function () {
+        t.fail('Expected upload to fail but it did not.')
+      })
+      .catch(function () {
+        expect(requestOrder(t)).to.match(/initiate,PUT:partNumber=1,cancel,cancel/)
+      })
+})
