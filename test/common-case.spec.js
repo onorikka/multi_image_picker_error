@@ -324,3 +324,57 @@ test('should not retry customAuthMethod for common case: Initiate, Put, Complete
     return Promise.reject('Permission denied');
   }
   return testSignerErrors(t, 403, {signerUrl: undefined, customAuthMethod: customRejectingAuthHandler})
+      .then(function (result) {
+        t.fail('Expected test to fail but received: ' + result)
+      })
+      .catch(function (reason) {
+        expect(reason).to.equal('Permission denied ')
+      })
+})
+
+
+// Failures to upload because PUT Part 404
+test('should fail if PUT part 404s', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+
+  return testCommon(t)
+      .then(function () {
+        t.fail('Expected upload to fail but it did not.')
+      })
+      .catch(function (reason) {
+        expect(reason).to.match(/File upload aborted/i)
+      })
+})
+test('should call cancelled() if PUT part 404s', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+
+  return testCommon(t, { cancelled: sinon.spy() })
+      .then(function () {
+        t.fail('Expected upload to fail but it did not.')
+      })
+      .catch(function () {
+        expect(t.context.config.cancelled.callCount).to.equal(1)
+      })
+})
+test('should call the correctly ordered requests if PUT part 404s', (t) => {
+  t.context.retry = function (type) {
+    return type === 'part'
+  }
+  t.context.errorStatus = 404
+
+  return testCommon(t)
+      .then(function () {
+        t.fail('Expected upload to fail but it did not.')
+      })
+      .catch(function () {
+        expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,cancel')
+      })
+})
+test('should fail with a message when PUT part 404s and DELETE fails', (t) => {
+  t.context.retry = function (type) {
