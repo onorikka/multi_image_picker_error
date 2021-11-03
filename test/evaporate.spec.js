@@ -217,3 +217,66 @@ test('should require configuration options on instantiation', (t) => {
       .then(function () {
           t.fail('Evaporate instantiated but should not have.')
           },
+          function (reason) {
+            t.pass(reason)
+          })
+
+})
+test('should signerUrl is required unless signResponseHandler is present', (t) => {
+  return Evaporate.create({signerUrl: null, signResponseHandler: null})
+      .then(function () {
+            t.fail('Evaporate instantiated but should not have.')
+          },
+          function (reason) {
+            t.pass(reason)
+          })
+
+})
+
+test('should require an AWS bucket with a signerUrl', (t) => {
+  return Evaporate.create({signerUrl: 'https://sign.com/sign'})
+      .then(function () {
+            t.fail('Evaporate instantiated but should not have.')
+          },
+          function (reason) {
+            t.pass(reason)
+          })
+
+})
+test('should require an AWS bucket without a signerUrl but with a signResponseHandler', (t) => {
+  return Evaporate.create({signResponseHandler: function () {}})
+      .then(function () {
+            t.fail('Evaporate instantiated but should not have.')
+          },
+          function (reason) {
+            t.pass(reason)
+          })
+
+})
+test('should require a cryptoMd5Method if computeContentMd5 is enabled', (t) => {
+  return Evaporate.create({bucket: 'asdafsa', signerUrl: 'https://sign.com/sign', computeContentMd5: true})
+      .then(function () {
+            t.fail('Evaporate instantiated but should not have.')
+          },
+          function (reason) {
+            t.pass(reason)
+          })
+
+})
+test('should require a cryptoHexEncodedHash256 method if computeContentMd5 is enabled with V4 signatures', (t) => {
+  return Evaporate.create({
+    bucket: 'asdafsa',
+    signerUrl: 'https://sign.com/sign',
+    computeContentMd5: true,
+    awsSignatureVersion: '4',
+    cryptoMd5Method: function () {}
+  })
+      .then(function () {
+            t.fail('Evaporate instantiated but should not have.')
+          },
+          function (reason) {
+            t.pass(reason)
+          })
+
+})
+test('should require computeContentMd5 if V4 signatures enabled', (t) => {
