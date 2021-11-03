@@ -156,3 +156,64 @@ test('#create evaporate should respect localTimeOffset', (t) => {
           },
           function (reason) {
             t.fail(reason)
+          })
+
+})
+test('#create evaporate should respect returned server time from timeUrl when local is behind server', (t) => {
+  var config = Object.assign({}, baseConfig, { timeUrl: 'http://example.com/time?testId=' + t.context.testId })
+  t.context.timeUrlDate = new Date(new Date().setTime(new Date().getTime() + (60 * 60 * 1000)))
+  return Evaporate.create(config)
+      .then(function (evaporate) {
+            expect(evaporate.localTimeOffset).to.be.closeTo(+3600000, 100)
+          },
+          function (reason) {
+            t.fail(reason)
+          })
+
+})
+test('#create evaporate should respect returned server time from timeUrl when server is behind local', (t) => {
+  var config = Object.assign({}, baseConfig, { timeUrl: 'http://example.com/time?testId=' + t.context.testId })
+  t.context.timeUrlDate = new Date(new Date().setTime(new Date().getTime() - (60 * 60 * 1000)))
+  return Evaporate.create(config)
+      .then(function (evaporate) {
+            expect(evaporate.localTimeOffset).to.be.closeTo(-3600000, 100)
+          },
+          function (reason) {
+            t.fail(reason)
+          })
+
+})
+test('#create evaporate calls timeUrl only once', (t) => {
+  var config = Object.assign({}, baseConfig, { timeUrl: 'http://example.com/time?testId=' + t.context.testId })
+  return Evaporate.create(config)
+      .then(function () {
+            expect(t.context.timeUrlCalled).to.equal(1)
+          },
+          function (reason) {
+            t.fail(reason)
+          })
+
+})
+test('new Evaporate() should instantiate and return default offset before timeUrl', (t) => {
+  var config = Object.assign({}, baseConfig, { timeUrl: 'http://example.com/time' })
+  expect(new Evaporate(config).localTimeOffset).to.equal(0)
+})
+test('new Evaporate() should instantiate and not call timeUrl', (t) => {
+  var config = Object.assign({}, baseConfig, { timeUrl: 'http://example.com/time' })
+  var evaporate =  newEvaporate(t, config);
+  return evaporateAdd(t, evaporate, config)
+      .then(function () {
+        expect(typeof t.context.timeUrlCalled).to.equal('undefined')
+      })
+})
+test('new Evaporate() calls timeUrl only once', (t) => {
+  var config = Object.assign({}, baseConfig, { timeUrl: 'http://example.com/time?testId=' + t.context.testId })
+  expect(new Evaporate(config).localTimeOffset).to.equal(0)
+})
+
+// Unsupported
+test('should require configuration options on instantiation', (t) => {
+  return Evaporate.create()
+      .then(function () {
+          t.fail('Evaporate instantiated but should not have.')
+          },
