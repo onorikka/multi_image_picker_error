@@ -105,3 +105,54 @@ test('#create evaporate should support #cancel', (t) => {
           })
 
 })
+test('#create evaporate should support #pause', (t) => {
+  return Evaporate.create(baseConfig)
+      .then(function (evaporate) {
+            expect(evaporate.pause).to.be.instanceof(Function)
+          },
+          function (reason) {
+            t.fail(reason)
+          })
+
+})
+test('#create evaporate should support #resume', (t) => {
+  return Evaporate.create(baseConfig)
+      .then(function (evaporate) {
+            expect(evaporate.resume).to.be.instanceof(Function)
+          },
+          function (reason) {
+            t.fail(reason)
+          })
+
+})
+test('#create evaporate should support #forceRetry', (t) => {
+  return Evaporate.create(baseConfig)
+      .then(function (evaporate) {
+            expect(evaporate.forceRetry).to.be.instanceof(Function)
+          },
+          function (reason) {
+            t.fail(reason)
+          })
+
+})
+
+// local time offset
+test('#create evaporate should use default local time offset without a timeUrl', (t) => {
+  return Evaporate.create(baseConfig)
+      .then(function (evaporate) {
+            expect(evaporate.localTimeOffset).to.equal(0)
+          },
+          function (reason) {
+            t.fail(reason)
+          })
+
+})
+test('#create evaporate should respect localTimeOffset', (t) => {
+  var offset = 30,
+      config = Object.assign({}, baseConfig, { localTimeOffset: offset })
+  return Evaporate.create(config)
+      .then(function (evaporate) {
+            expect(evaporate.localTimeOffset).to.equal(30)
+          },
+          function (reason) {
+            t.fail(reason)
