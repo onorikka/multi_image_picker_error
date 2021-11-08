@@ -410,3 +410,45 @@ test('should add() new upload with correct config', (t) => {
       })
 })
 test('should add() new upload with correct completed XML', (t) => {
+  return testCommon(t)
+      .then(function () {
+        expect(testRequests[t.context.testId][5].requestBody).to.equal('<CompleteMultipartUpload><Part><PartNumber>1</PartNumber><ETag></ETag></Part></CompleteMultipartUpload>')
+      })
+})
+
+test('should return fileKeys correctly for common cases started', (t) => {
+  let config = Object.assign({}, baseAddConfig, {
+    started: function (fileKey) { start_id = fileKey; }
+  })
+
+  let start_id
+  return testCommon(t, config)
+      .then(function () {
+        let expected = baseConfig.bucket + '/' + config.name
+        expect(start_id).to.equal(expected)
+      })
+})
+
+test('should return fileKeys correctly for common cases resolve', (t) => {
+  return testCommon(t)
+      .then(function (fileKey) {
+        let expected = t.context.config.name
+        expect(fileKey).to.equal(expected)
+      })
+})
+
+test('should return the object key in the complete callback', (t) => {
+  let complete_id
+
+  let config = Object.assign({}, baseAddConfig, {
+    complete: sinon.spy(function (xhr, name) { complete_id = name; })
+  })
+
+  return testCommon(t, config)
+      .then(function () {
+        expect(complete_id).to.equal(config.name)
+        expect(t.context.config.complete.firstCall.args.length).to.equal(3)
+        expect(t.context.config.complete.firstCall.args[0]).to.be.instanceOf(sinon.FakeXMLHttpRequest)
+        expect(typeof t.context.config.complete.firstCall.args[1]).to.equal('string')
+        expect(typeof t.context.config.complete.firstCall.args[2]).to.equal('object')
+      })
