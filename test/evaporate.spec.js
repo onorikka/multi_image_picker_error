@@ -280,3 +280,73 @@ test('should require a cryptoHexEncodedHash256 method if computeContentMd5 is en
 
 })
 test('should require computeContentMd5 if V4 signatures enabled', (t) => {
+  return Evaporate.create({bucket: 'asdafsa', signerUrl: 'https://sign.com/sign', awsSignatureVersion: '4'})
+      .then(function () {
+            t.fail('Evaporate instantiated but should not have.')
+          },
+          function (reason) {
+            t.pass(reason)
+          })
+})
+
+test.serial('should require browser File support', (t) => {
+  global['File'] = undefined
+  return Evaporate.create({bucket: 'asdafsa', signerUrl: 'https://sign.com/sign', awsSignatureVersion: '2'})
+      .then(function () {
+            global.File = fileObject
+            t.fail('Evaporate instantiated but should not have.')
+          },
+          function (reason) {
+            global.File = fileObject
+            t.pass(reason)
+          })
+})
+test.serial('should require browser Blob support', (t) => {
+  global['Blob'] = undefined
+  return Evaporate.create({bucket: 'asdafsa', signerUrl: 'https://sign.com/sign', awsSignatureVersion: '2'})
+      .then(function () {
+            global.Blob = blobObject
+            t.fail('Evaporate instantiated but should not have.')
+          },
+          function (reason) {
+            global.Blob = blobObject
+            t.pass(reason)
+          })
+})
+test.serial('should require browser FileReader#readAsArrayBuffer support if computeContentMd5 enabled', (t) => {
+  global['FileReader'].prototype.readAsArrayBuffer = undefined
+  return Evaporate.create({bucket: 'asdafsa', signerUrl: 'https://sign.com/sign', awsSignatureVersion: '2', computeContentMd5: true, cryptoMd5Method: function () {}})
+      .then(function () {
+            global['FileReader'].prototype.readAsArrayBuffer = arrayBuffer
+            t.fail('Evaporate instantiated but should not have.')
+          },
+          function (reason) {
+            global['FileReader'].prototype.readAsArrayBuffer = arrayBuffer
+            t.pass(reason)
+          })
+})
+test.todo('should require browser Blob slice support')
+test.todo('should require browser Promise support')
+test.todo('should validate readableStream and readableStreamPartMethod')
+
+// add
+
+test('should fail to add() when no file is present', (t) => {
+  return Evaporate.create(baseConfig)
+      .then(function (evaporate) {
+        evaporate.add({ name: 'test' })
+            .then(function () {
+                  t.fail('Evaporate added a new file but should not have.')
+                },
+                function (reason) {
+                  expect(reason).to.match(/missing file/i)
+                })
+      })
+});
+test('should fail to add() when empty config is present', (t) => {
+  return Evaporate.create(baseConfig)
+      .then(function (evaporate) {
+        evaporate.add({})
+            .then(function () {
+                  t.fail('Evaporate added a new file but should not have.')
+                },
