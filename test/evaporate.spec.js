@@ -452,3 +452,69 @@ test('should return the object key in the complete callback', (t) => {
         expect(typeof t.context.config.complete.firstCall.args[1]).to.equal('string')
         expect(typeof t.context.config.complete.firstCall.args[2]).to.equal('object')
       })
+
+})
+
+test('should correctly encode parentheses for S3', (t) => {
+  let complete_id
+
+  const c = Object.assign({}, baseAddConfig, {name: '()name()'})
+
+  let config = Object.assign({}, c, {
+    complete: sinon.spy(function (xhr, name) { complete_id = name; })
+  })
+
+  return testCommon(t, config)
+      .then(function () {
+        expect(complete_id).to.equal('%28%29name%28%29')
+      })
+
+})
+
+test('should correctly encode single quotes, exclamation points for S3', (t) => {
+  let complete_id
+
+  const c = Object.assign({}, baseAddConfig, {name: "'na!me'"})
+
+  let config = Object.assign({}, c, {
+    complete: sinon.spy(function (xhr, name) { complete_id = name; })
+  })
+
+  return testCommon(t, config)
+      .then(function () {
+        expect(complete_id).to.equal('%27na%21me%27')
+      })
+})
+
+test('should correctly encode asterisk for S3', (t) => {
+  let complete_id
+
+  const c = Object.assign({}, baseAddConfig, {name: "foo*"})
+
+  let config = Object.assign({}, c, {
+    complete: sinon.spy(function (xhr, name) { complete_id = name; })
+  })
+
+  return testCommon(t, config)
+      .then(function () {
+        expect(complete_id).to.equal('foo%2A')
+      })
+})
+
+test('should correctly encode spaces for S3', (t) => {
+  let complete_id
+
+  const c = Object.assign({}, baseAddConfig, {name: " name "})
+
+  let config = Object.assign({}, c, {
+    complete: sinon.spy(function (xhr, name) { complete_id = name; })
+  })
+
+  return testCommon(t, config)
+      .then(function () {
+        expect(complete_id).to.equal('%20name%20')
+      })
+})
+
+test('should add() two new uploads with correct config', (t) => {
+  let id0, id1
