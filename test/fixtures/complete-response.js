@@ -1,1 +1,1 @@
-module.export
+module.exports = function (bucket = 'bucket', key = 'test.txt')
