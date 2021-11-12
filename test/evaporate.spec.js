@@ -518,3 +518,61 @@ test('should correctly encode spaces for S3', (t) => {
 
 test('should add() two new uploads with correct config', (t) => {
   let id0, id1
+
+  let config1 = Object.assign({}, baseAddConfig, {
+    started: function (fileId) { id0 = fileId; }
+  })
+  let config2 = Object.assign({}, config1, {
+    name: randomAwsKey(),
+    started: function (fileId) { id1 = fileId;},
+  })
+
+  let promise1 = testCommon(t, config1)
+  let promise2 = testCommon(t, config2)
+
+  return Promise.all([promise1, promise2])
+      .then (function () {
+        expect(id0).to.equal(baseConfig.bucket + '/' + config1.name);
+        expect(id1).to.equal(baseConfig.bucket + '/' + config2.name);
+      })
+})
+
+test('should call a callback on successful add()', (t) => {
+  return testCommon(t)
+      .then(function () {
+        expect(t.context.config.started.withArgs(baseConfig.bucket + '/' + t.context.requestedAwsObjectKey).calledOnce).to.be.true
+      })
+})
+
+test('should call a callback on successful initiate()', (t) => {
+  const initated_spy = sinon.spy()
+
+  const config = Object.assign({}, baseAddConfig, {
+    uploadInitiated: initated_spy
+  })
+
+  return testCommon(t, config)
+      .then(function () {
+        expect(initated_spy.withArgs('Hzr2sK034dOrV4gMsYK.MMrtWIS8JVBPKgeQ.LWd6H8V2PsLecsBqoA1cG1hjD3G4KRX_EBEwxWWDu8lNKezeA--').calledOnce).to.be.true
+      })
+})
+
+test('should call a progress with stats callback on successful add()', (t) => {
+  return testCommon(t, {progress: sinon.spy()})
+      .then(function () {
+        expect(t.context.config.progress.firstCall.args.length).to.equal(2)
+        expect(typeof t.context.config.progress.firstCall.args[1]).to.equal('object')
+      })
+})
+
+// cancel
+
+test('should fail with a message when canceling all if no files are processing', (t) => {
+  return Evaporate.create(baseConfig)
+      .then(function (evaporate) {
+        return evaporate.cancel()
+            .then(function () {
+              t.fail('Cancel did not fail.')
+            })
+            .catch(function (reason) {
+              expect(reason).to.match(/no files to cancel/i)
