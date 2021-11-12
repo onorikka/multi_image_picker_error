@@ -576,3 +576,75 @@ test('should fail with a message when canceling all if no files are processing',
             })
             .catch(function (reason) {
               expect(reason).to.match(/no files to cancel/i)
+            })
+      })
+})
+test('should cancel() all uploads when cancel receives no parameters', (t) => {
+  const config = Object.assign({}, baseAddConfig, {
+    name: randomAwsKey(),
+    started: function (fileId) { id = fileId; }
+  })
+
+  let id
+
+  return testCommon(t, config)
+      .then(function () {
+        t.context.evaporate.cancel()
+            .then(function () {
+              t.fail('Expected test to fail.')
+            })
+            .catch(function (reason) {
+                expect(reason).to.match(/no files to cancel/i)
+            })
+      })
+})
+
+
+test('should fail to cancel() when non-existing id is present', (t) => {
+  return Evaporate.create(baseConfig)
+      .then(function (evaporate) {
+        evaporate.cancel('non-existent-file')
+            .then(function () {
+              t.fail('Cancel did not fail.')
+            })
+            .catch(function (reason) {
+              expect(reason).to.match(/does not exist/i)
+            })
+      })
+
+})
+
+test('should cancel() an upload with correct object name', (t) => {
+  const config = Object.assign({}, baseAddConfig, {
+    name: randomAwsKey(),
+    started: function (fileId) { id = fileId; }
+  })
+
+  let id
+
+  return testCommon(t, config)
+      .then(function () {
+        const result = t.context.evaporate.cancel(id)
+        expect(result).to.be.ok
+      })
+})
+
+test('should cancel() two uploads with correct id, first result OK', (t) => {
+
+  let config1 = Object.assign({}, baseAddConfig, {
+    started: function (fileId) { id0 = fileId;}
+  })
+  let config2 = Object.assign({}, config1, {
+    name: randomAwsKey(),
+    started: function (fileId) { id1 = fileId;},
+  })
+  let id0, id1
+
+  let promise0 = testCommon(t, config1)
+  let promise1 = testCommon(t, config2)
+
+  return Promise.all([promise0, promise1])
+      .catch(function (reason) {
+        t.fail('Promises failed.')
+      })
+})
