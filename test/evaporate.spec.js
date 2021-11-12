@@ -648,3 +648,50 @@ test('should cancel() two uploads with correct id, first result OK', (t) => {
         t.fail('Promises failed.')
       })
 })
+
+test('should call a callbacks on cancel(): canceled', (t) => {
+  return testCancelCallbacks(t)
+    .then(function () {
+      expect(t.context.config.cancelled).to.have.been.called
+    })
+})
+test('should call a callbacks on cancel(): evaporateChanged', (t) => {
+  return testCancelCallbacks(t)
+      .then(function () {
+        expect(t.context.evapConfig.evaporateChanged).to.have.been.called
+      })
+})
+test('should call a callbacks on cancel(): evaporateChanged call count', (t) => {
+  return testCancelCallbacks(t)
+      .then(function () {
+        expect(t.context.evapConfig.evaporateChanged.callCount).to.equal(2)
+      })
+})
+test('should call a callbacks on cancel(): evaporateChanged first call args', (t) => {
+  return testCancelCallbacks(t)
+      .then(function () {
+        expect(t.context.evapConfig.evaporateChanged.firstCall.args[1]).to.eql(1)
+      })
+})
+test('should call a callbacks on cancel(): evaporateChanged second call args', (t) => {
+  return testCancelCallbacks(t)
+      .then(function () {
+        expect(t.context.evapConfig.evaporateChanged.secondCall.args[1]).to.eql(0)
+      })
+})
+
+// configuration overrides
+test('should add() new upload with correct config with custom bucket on add', (t) => {
+  let evapConfig = Object.assign({}, {awsSignatureVersion: '2'}, baseConfig)
+  const evaporate = newEvaporate(t, evapConfig)
+
+  let a1 = evaporateAdd(t, evaporate, baseAddConfig, { bucket: 'fileCustomBucket1' })
+  let a2 = evaporateAdd(t, evaporate, baseAddConfig, { bucket: 'fileCustomBucket2' })
+
+  return Promise.all([a1, a2])
+      .then(function () {
+        expect(testRequests[t.context.testId][1].url).to.match(new RegExp('fileCustomBucket1'))
+        var last = testRequests[t.context.testId].length - 1
+        expect(testRequests[t.context.testId][last].url).to.match(new RegExp('fileCustomBucket2'))
+      })
+})
