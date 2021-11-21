@@ -6,4 +6,6 @@ module.exports = function (bucket = 'bucket', key = 'test.txt') {
       <Bucket>${bucket}</Bucket>
       <Key>${key}</Key>
       <ETag>&quot;b2969107bdcfc6aa30892ee0867ebe79-1&quot;</ETag>
-    </CompleteMultipar
+    </CompleteMultipartUploadResult>
+  `
+}
