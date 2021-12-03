@@ -9,4 +9,4 @@ module.exports = function (bucket = 'bucket', key = 'test.txt', totalParts = 1, 
       </UploadId>
       <StorageClass>STANDARD</StorageClass>
       <PartNumberMarker>${partNumberMarker}</PartNumberMarker>
-      <NextPartNumberMa
+      <NextPartNumberMarker>${partNumberMarker + 1}</NextPartNumberMarker>
