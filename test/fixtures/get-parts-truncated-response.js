@@ -10,4 +10,7 @@ module.exports = function (bucket = 'bucket', key = 'test.txt', totalParts = 1, 
       <StorageClass>STANDARD</StorageClass>
       <PartNumberMarker>${partNumberMarker}</PartNumberMarker>
       <NextPartNumberMarker>${partNumberMarker + 1}</NextPartNumberMarker>
-      <IsTruncated>${totalParts !==0 && (partNumberMarker +
+      <IsTruncated>${totalParts !==0 && (partNumberMarker + 1 !== totalParts)}</IsTruncated>`
+
+  if (totalParts > 0) {
+ 
