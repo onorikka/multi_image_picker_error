@@ -15,4 +15,5 @@ module.exports = function (bucket = 'bucket', key = 'test.txt', totalParts = 1, 
   if (totalParts > 0) {
       head += `
         <Part>
-            <PartNumber>${partNumberMarker + 1}</
+            <PartNumber>${partNumberMarker + 1}</PartNumber>
+            <LastModified>2016-10-09T22:59:39.00
