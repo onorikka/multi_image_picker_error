@@ -13,4 +13,6 @@ module.exports = function (bucket = 'bucket', key = 'test.txt', totalParts = 1, 
       <IsTruncated>${totalParts !==0 && (partNumberMarker + 1 !== totalParts)}</IsTruncated>`
 
   if (totalParts > 0) {
- 
+      head += `
+        <Part>
+            <PartNumber>${partNumberMarker + 1}</
