@@ -17,4 +17,6 @@ module.exports = function (bucket = 'bucket', key = 'test.txt', totalParts = 1, 
         <Part>
             <PartNumber>${partNumberMarker + 1}</PartNumber>
             <LastModified>2016-10-09T22:59:39.000Z</LastModified>
-            <ETag>&quot;98a2846465ef0937
+            <ETag>&quot;98a2846465ef09376b0840d18830502c&quot;</ETag>
+            <Size>6291456</Size>
+   
