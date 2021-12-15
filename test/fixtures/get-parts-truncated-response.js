@@ -25,4 +25,5 @@ module.exports = function (bucket = 'bucket', key = 'test.txt', totalParts = 1, 
 
     head += "</ListPartsResult>"
 
-  re
+  return head
+}
