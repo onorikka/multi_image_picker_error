@@ -5,4 +5,6 @@ module.exports = function (bucket = 'bucket', key = 'test.txt') {
       <Bucket>${bucket}</Bucket>
       <Key>${key}</Key>
       <UploadId>Hzr2sK034dOrV4gMsYK.MMrtWIS8JVBPKgeQ.LWd6H8V2PsLecsBqoA1cG1hjD3G4KRX_EBEwxWWDu8lNKezeA--</UploadId>
-    </InitiateMultipartUploadRe
+    </InitiateMultipartUploadResult>
+  `
+}
