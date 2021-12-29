@@ -1,2 +1,4 @@
 import { DOMParser } from 'xmldom'
-import { js
+import { jsdom } from 'jsdom'
+import { File } from 'file-api'
+impor
