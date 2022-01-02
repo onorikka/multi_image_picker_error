@@ -4,4 +4,4 @@ import { File } from 'file-api'
 import Evaporate from '../../evaporate'
 import sinon from 'sinon'
 import initResponse from '../fixtures/init-response'
-im
+import completeResponse from '../fixtures/complete-respo
