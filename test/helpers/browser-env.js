@@ -5,4 +5,6 @@ import Evaporate from '../../evaporate'
 import sinon from 'sinon'
 import initResponse from '../fixtures/init-response'
 import completeResponse from '../fixtures/complete-response'
-import getPartsResponse from '../fixtures/get-par
+import getPartsResponse from '../fixtures/get-parts-truncated-response'
+
+const CONTENT_TYPE_XML = { '
