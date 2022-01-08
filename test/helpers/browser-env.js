@@ -16,4 +16,8 @@ global.document = jsdom('<body></body>')
 global.DOMParser = DOMParser
 
 File.prototype.slice = function (start = 0, end = null, contentType = '') {
-  if (!en
+  if (!end) {
+    end = this.size
+  }
+  return new File({
+  
