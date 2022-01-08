@@ -15,4 +15,5 @@ const AWS_UPLOAD_KEY = 'tests'
 global.document = jsdom('<body></body>')
 global.DOMParser = DOMParser
 
-File.prototype.slice
+File.prototype.slice = function (start = 0, end = null, contentType = '') {
+  if (!en
