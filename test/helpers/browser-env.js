@@ -13,4 +13,6 @@ const CONTENT_TYPE_TEXT = { 'Content-Type': 'text/plain' }
 const AWS_UPLOAD_KEY = 'tests'
 
 global.document = jsdom('<body></body>')
-globa
+global.DOMParser = DOMParser
+
+File.prototype.slice
