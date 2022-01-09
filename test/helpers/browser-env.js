@@ -20,4 +20,7 @@ File.prototype.slice = function (start = 0, end = null, contentType = '') {
     end = this.size
   }
   return new File({
-  
+    size: end - start,
+    path: this.path,
+    name: this.name,
+    
