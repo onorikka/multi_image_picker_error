@@ -23,4 +23,9 @@ File.prototype.slice = function (start = 0, end = null, contentType = '') {
     size: end - start,
     path: this.path,
     name: this.name,
-    
+    type: this.type || contentType
+  })
+}
+
+global.File = File
+global
