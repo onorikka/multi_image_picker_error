@@ -28,4 +28,7 @@ File.prototype.slice = function (start = 0, end = null, contentType = '') {
 }
 
 global.File = File
-global
+global.Blob = File
+
+let FileReaderMock = function () {}
+FileReaderMock.
