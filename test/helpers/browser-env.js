@@ -34,4 +34,6 @@ let FileReaderMock = function () {}
 FileReaderMock.prototype.onloadend = function () {}
 FileReaderMock.prototype.readAsArrayBuffer = function () { this.onloadend(); }
 
-g
+global.FileReader = FileReaderMock;
+
+global.AWS_B
