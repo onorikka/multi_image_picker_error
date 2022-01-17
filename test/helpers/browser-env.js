@@ -32,4 +32,6 @@ global.Blob = File
 
 let FileReaderMock = function () {}
 FileReaderMock.prototype.onloadend = function () {}
-FileReaderMock.pr
+FileReaderMock.prototype.readAsArrayBuffer = function () { this.onloadend(); }
+
+g
