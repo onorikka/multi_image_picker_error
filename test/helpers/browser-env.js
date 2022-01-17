@@ -31,4 +31,5 @@ global.File = File
 global.Blob = File
 
 let FileReaderMock = function () {}
-FileReaderMock.
+FileReaderMock.prototype.onloadend = function () {}
+FileReaderMock.pr
