@@ -39,4 +39,5 @@ global.FileReader = FileReaderMock;
 global.AWS_BUCKET = 'bucket'
 global.AWS_UPLOAD_KEY = 'tests'
 
-cons
+const baseConfig = {
+  signerUrl: 'http://what.ever/sign',
