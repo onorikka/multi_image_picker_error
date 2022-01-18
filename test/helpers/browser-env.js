@@ -36,4 +36,7 @@ FileReaderMock.prototype.readAsArrayBuffer = function () { this.onloadend(); }
 
 global.FileReader = FileReaderMock;
 
-global.AWS_B
+global.AWS_BUCKET = 'bucket'
+global.AWS_UPLOAD_KEY = 'tests'
+
+cons
