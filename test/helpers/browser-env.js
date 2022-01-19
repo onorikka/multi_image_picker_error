@@ -41,3 +41,7 @@ global.AWS_UPLOAD_KEY = 'tests'
 
 const baseConfig = {
   signerUrl: 'http://what.ever/sign',
+  aws_key: 'testkey',
+  bucket: AWS_BUCKET,
+  logging: false,
+  ma
