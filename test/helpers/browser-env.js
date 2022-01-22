@@ -44,4 +44,5 @@ const baseConfig = {
   aws_key: 'testkey',
   bucket: AWS_BUCKET,
   logging: false,
-  ma
+  maxRetryBackoffSecs: 0.1,
+  abortCompletionThrottlingMs: 
