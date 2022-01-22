@@ -50,4 +50,6 @@ const baseConfig = {
 
 function LocalStorage() {
   this.cache = {};
-  this.ge
+  this.getItem = function (key) {
+    return this.cache[key];
+  };
