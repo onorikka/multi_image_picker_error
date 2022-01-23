@@ -53,3 +53,5 @@ function LocalStorage() {
   this.getItem = function (key) {
     return this.cache[key];
   };
+  this.setItem = function (key, value) {
+    return thi
