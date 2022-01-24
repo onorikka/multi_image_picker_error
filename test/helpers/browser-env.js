@@ -66,4 +66,5 @@ global.localStorage = new LocalStorage();
 global.testRequests = {}
 global.testContext = {}
 
-g
+global.randomAwsKey = function () {
+  return Math.random().
