@@ -57,4 +57,8 @@ function LocalStorage() {
     return this.cache[key] = value;
   };
   this.removeItem = function (key) {
-    dele
+    delete this.cache[key];
+  };
+}
+
+global.localStorage = new LocalStora
