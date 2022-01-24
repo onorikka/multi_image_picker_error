@@ -61,4 +61,9 @@ function LocalStorage() {
   };
 }
 
-global.localStorage = new LocalStora
+global.localStorage = new LocalStorage();
+
+global.testRequests = {}
+global.testContext = {}
+
+g
