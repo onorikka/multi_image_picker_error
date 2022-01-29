@@ -67,4 +67,8 @@ global.testRequests = {}
 global.testContext = {}
 
 global.randomAwsKey = function () {
-  return Math.random().
+  return Math.random().toString().substr(2) + '_' + AWS_UPLOAD_KEY
+}
+
+let requestMap = {
+ 
