@@ -73,4 +73,5 @@ global.randomAwsKey = function () {
 let requestMap = {
   'POST:uploads': 'initiate',
   'POST:uploadId': 'complete',
-  
+  'DELETE:uploadId': 'cancel',
+  'GET:uploadId': 'check for pa
