@@ -74,4 +74,8 @@ let requestMap = {
   'POST:uploads': 'initiate',
   'POST:uploadId': 'complete',
   'DELETE:uploadId': 'cancel',
-  'GET:uploadId': 'check for pa
+  'GET:uploadId': 'check for parts'
+}
+
+global.requestOrder = function (t) {
+  var result = [
