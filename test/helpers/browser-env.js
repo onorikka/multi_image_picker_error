@@ -78,4 +78,6 @@ let requestMap = {
 }
 
 global.requestOrder = function (t) {
-  var result = [
+  var result = []
+  let r = testRequests[t.context.testId]
+  r.forEach(
