@@ -80,4 +80,5 @@ let requestMap = {
 global.requestOrder = function (t) {
   var result = []
   let r = testRequests[t.context.testId]
-  r.forEach(
+  r.forEach(function (r) {
+    // Ignore the signing reque
