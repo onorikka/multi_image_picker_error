@@ -81,4 +81,6 @@ global.requestOrder = function (t) {
   var result = []
   let r = testRequests[t.context.testId]
   r.forEach(function (r) {
-    // Ignore the signing reque
+    // Ignore the signing requests
+    if (!r.url.match(/\/sign.*$/)) {
+      var x
