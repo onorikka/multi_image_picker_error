@@ -83,4 +83,6 @@ global.requestOrder = function (t) {
   r.forEach(function (r) {
     // Ignore the signing requests
     if (!r.url.match(/\/sign.*$/)) {
-      var x
+      var x = r.url.split('?'),
+          y = x[1] ? x[1].split('&') : '',
+    
