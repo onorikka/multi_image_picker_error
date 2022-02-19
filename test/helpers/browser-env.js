@@ -86,4 +86,6 @@ global.requestOrder = function (t) {
       var x = r.url.split('?'),
           y = x[1] ? x[1].split('&') : '',
           z = y[0] ? y[0].split('=')[0] : y
-      if (z === 'partNumber') 
+      if (z === 'partNumber') {
+        z += '='
+        z += y[0].spli
