@@ -88,4 +88,7 @@ global.requestOrder = function (t) {
           z = y[0] ? y[0].split('=')[0] : y
       if (z === 'partNumber') {
         z += '='
-        z += y[0].spli
+        z += y[0].split('=')[1]
+      }
+
+      var v = z ? r.method + ':' + z : r.met
