@@ -91,4 +91,9 @@ global.requestOrder = function (t) {
         z += y[0].split('=')[1]
       }
 
-      var v = z ? r.method + ':' + z : r.met
+      var v = z ? r.method + ':' + z : r.method
+      result.push(requestMap[v] || v)
+    }
+  })
+
+  re
