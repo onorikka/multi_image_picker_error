@@ -99,4 +99,6 @@ global.requestOrder = function (t) {
   return result.join(',')
 }
 
-global.headersForMethod = f
+global.headersForMethod = function(t, method, urlRegex) {
+  var r = urlRegex || /./
+  l
