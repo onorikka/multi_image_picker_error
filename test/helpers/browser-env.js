@@ -96,4 +96,7 @@ global.requestOrder = function (t) {
     }
   })
 
-  re
+  return result.join(',')
+}
+
+global.headersForMethod = f
