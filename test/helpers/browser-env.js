@@ -105,4 +105,10 @@ global.headersForMethod = function(t, method, urlRegex) {
   for (var i = 0; i < requests.length; i++) {
     var xhr = requests[i]
     if (xhr.method === method && xhr.url.match(r)) {
-      return x
+      return xhr.requestHeaders
+    }
+  }
+  return {}
+}
+
+global.serverCommonCase = fun
