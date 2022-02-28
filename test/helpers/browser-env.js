@@ -104,4 +104,5 @@ global.headersForMethod = function(t, method, urlRegex) {
   let requests = testRequests[t.context.testId]
   for (var i = 0; i < requests.length; i++) {
     var xhr = requests[i]
-    if (x
+    if (xhr.method === method && xhr.url.match(r)) {
+      return x
