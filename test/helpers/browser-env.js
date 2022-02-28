@@ -101,4 +101,5 @@ global.requestOrder = function (t) {
 
 global.headersForMethod = function(t, method, urlRegex) {
   var r = urlRegex || /./
-  l
+  let requests = testRequests[t.context.testId]
+  for (var i = 0
