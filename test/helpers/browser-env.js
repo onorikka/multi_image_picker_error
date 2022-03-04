@@ -111,4 +111,6 @@ global.headersForMethod = function(t, method, urlRegex) {
   return {}
 }
 
-global.serverCommonCase = fun
+global.serverCommonCase = function (partRequestHandler) {
+
+  let server = sinon.fak
