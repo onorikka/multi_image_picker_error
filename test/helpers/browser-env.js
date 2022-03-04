@@ -113,4 +113,8 @@ global.headersForMethod = function(t, method, urlRegex) {
 
 global.serverCommonCase = function (partRequestHandler) {
 
-  let server = sinon.fak
+  let server = sinon.fakeServer.create({
+    respondImmediately: true
+  })
+
+  server.r
