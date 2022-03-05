@@ -117,4 +117,5 @@ global.serverCommonCase = function (partRequestHandler) {
     respondImmediately: true
   })
 
-  server.r
+  server.respondWith('GET', /\/sign.*$/, (xhr) => {
+    storeTestReq
