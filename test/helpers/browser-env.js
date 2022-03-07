@@ -118,4 +118,6 @@ global.serverCommonCase = function (partRequestHandler) {
   })
 
   server.respondWith('GET', /\/sign.*$/, (xhr) => {
-    storeTestReq
+    storeTestRequest(xhr)
+    let payload
+    payload = Array(
