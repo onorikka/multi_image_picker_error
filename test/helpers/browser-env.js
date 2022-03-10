@@ -122,4 +122,5 @@ global.serverCommonCase = function (partRequestHandler) {
     let payload
     payload = Array(29).join()
     if (xhr.url.match(/\/signv4.*$/)) {
-      pay
+      payload = '12345678901234567890123456v4'
+    } else if (
