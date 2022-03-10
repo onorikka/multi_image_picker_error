@@ -120,4 +120,6 @@ global.serverCommonCase = function (partRequestHandler) {
   server.respondWith('GET', /\/sign.*$/, (xhr) => {
     storeTestRequest(xhr)
     let payload
-    payload = Array(
+    payload = Array(29).join()
+    if (xhr.url.match(/\/signv4.*$/)) {
+      pay
