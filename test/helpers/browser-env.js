@@ -124,4 +124,6 @@ global.serverCommonCase = function (partRequestHandler) {
     if (xhr.url.match(/\/signv4.*$/)) {
       payload = '12345678901234567890123456v4'
     } else if (xhr.url.match(/\/signv2.*$/)) {
-      payload = '1234567890
+      payload = '1234567890123456789012345678'
+    }
+    xhr.respond(retryStatus(xhr, 'sign'), CO
