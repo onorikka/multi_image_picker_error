@@ -126,4 +126,7 @@ global.serverCommonCase = function (partRequestHandler) {
     } else if (xhr.url.match(/\/signv2.*$/)) {
       payload = '1234567890123456789012345678'
     }
-    xhr.respond(retryStatus(xhr, 'sign'), CO
+    xhr.respond(retryStatus(xhr, 'sign'), CONTENT_TYPE_TEXT, payload)
+  })
+
+  server.respondWith('POST', /^.*\?
