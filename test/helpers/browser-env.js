@@ -130,4 +130,5 @@ global.serverCommonCase = function (partRequestHandler) {
   })
 
   server.respondWith('POST', /^.*\?uploads.*$/, (xhr) => {
-    let context = storeTestR
+    let context = storeTestRequest(xhr)
+    context.authorization = xhr.requestHeaders
