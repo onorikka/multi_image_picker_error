@@ -129,4 +129,5 @@ global.serverCommonCase = function (partRequestHandler) {
     xhr.respond(retryStatus(xhr, 'sign'), CONTENT_TYPE_TEXT, payload)
   })
 
-  server.respondWith('POST', /^.*\?
+  server.respondWith('POST', /^.*\?uploads.*$/, (xhr) => {
+    let context = storeTestR
