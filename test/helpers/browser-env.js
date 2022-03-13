@@ -131,4 +131,5 @@ global.serverCommonCase = function (partRequestHandler) {
 
   server.respondWith('POST', /^.*\?uploads.*$/, (xhr) => {
     let context = storeTestRequest(xhr)
-    context.authorization = xhr.requestHeaders
+    context.authorization = xhr.requestHeaders.Authorization
+    xhr.respond(retryStatus(xhr, 'init'), CONTENT_TYPE_XML
