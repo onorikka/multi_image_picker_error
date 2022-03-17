@@ -132,4 +132,7 @@ global.serverCommonCase = function (partRequestHandler) {
   server.respondWith('POST', /^.*\?uploads.*$/, (xhr) => {
     let context = storeTestRequest(xhr)
     context.authorization = xhr.requestHeaders.Authorization
-    xhr.respond(retryStatus(xhr, 'init'), CONTENT_TYPE_XML
+    xhr.respond(retryStatus(xhr, 'init'), CONTENT_TYPE_XML, initResponse(AWS_BUCKET, AWS_UPLOAD_KEY))
+  })
+
+ 
