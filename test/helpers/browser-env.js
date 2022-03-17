@@ -135,4 +135,5 @@ global.serverCommonCase = function (partRequestHandler) {
     xhr.respond(retryStatus(xhr, 'init'), CONTENT_TYPE_XML, initResponse(AWS_BUCKET, AWS_UPLOAD_KEY))
   })
 
- 
+  server.respondWith('PUT', /^.*$/, (xhr) => {
+    let
