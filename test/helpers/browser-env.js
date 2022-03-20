@@ -136,4 +136,6 @@ global.serverCommonCase = function (partRequestHandler) {
   })
 
   server.respondWith('PUT', /^.*$/, (xhr) => {
-    let
+    let context = storeTestRequest(xhr)
+
+    if (typeof partRequestHandler 
