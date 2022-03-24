@@ -139,4 +139,7 @@ global.serverCommonCase = function (partRequestHandler) {
     let context = storeTestRequest(xhr)
 
     if (typeof partRequestHandler === 'function') {
-      if (typeof partRequestHandler(xhr, 
+      if (typeof partRequestHandler(xhr, context) === 'undefined') {
+        return;
+      }
+   
