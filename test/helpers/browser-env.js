@@ -142,4 +142,6 @@ global.serverCommonCase = function (partRequestHandler) {
       if (typeof partRequestHandler(xhr, context) === 'undefined') {
         return;
       }
-   
+    }
+    let status = retryStatus(xhr, 'part'),
+     
