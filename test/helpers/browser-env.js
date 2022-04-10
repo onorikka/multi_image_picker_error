@@ -145,4 +145,7 @@ global.serverCommonCase = function (partRequestHandler) {
     }
     let status = retryStatus(xhr, 'part'),
         errResponse = `
-    <?xml version="1.0" encoding="UTF-
+    <?xml version="1.0" encoding="UTF-8"?>
+      <Error>
+        <Code>NoSuchKey</Code>
+        <Me
