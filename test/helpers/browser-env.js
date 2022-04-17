@@ -148,4 +148,4 @@ global.serverCommonCase = function (partRequestHandler) {
     <?xml version="1.0" encoding="UTF-8"?>
       <Error>
         <Code>NoSuchKey</Code>
-        <Me
+        <Message>The resource you requested does not exist</Mess
