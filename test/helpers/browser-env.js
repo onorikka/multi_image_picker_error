@@ -148,4 +148,6 @@ global.serverCommonCase = function (partRequestHandler) {
     <?xml version="1.0" encoding="UTF-8"?>
       <Error>
         <Code>NoSuchKey</Code>
-        <Message>The resource you requested does not exist</Mess
+        <Message>The resource you requested does not exist</Message>
+        <Resource>/mybucket/myfoto.jpg</Resource> 
+  
