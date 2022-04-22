@@ -150,4 +150,4 @@ global.serverCommonCase = function (partRequestHandler) {
         <Code>NoSuchKey</Code>
         <Message>The resource you requested does not exist</Message>
         <Resource>/mybucket/myfoto.jpg</Resource> 
-  
+        <RequestId>4442587FB7D0A2F9</RequestId>
