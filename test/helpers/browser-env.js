@@ -157,4 +157,5 @@ global.serverCommonCase = function (partRequestHandler) {
 
   })
 
-  server.r
+  server.respondWith('POST', /.*\?uploadId.*$/, (xhr) => {
+    storeTestRequest(
