@@ -153,4 +153,8 @@ global.serverCommonCase = function (partRequestHandler) {
         <RequestId>4442587FB7D0A2F9</RequestId>
       </Error>`
 
-    xhr.respond(status, CONTENT_TY
+    xhr.respond(status, CONTENT_TYPE_XML, status === 200 ? '' : errResponse)
+
+  })
+
+  server.r
