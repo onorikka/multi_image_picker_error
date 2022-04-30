@@ -159,4 +159,7 @@ global.serverCommonCase = function (partRequestHandler) {
 
   server.respondWith('POST', /.*\?uploadId.*$/, (xhr) => {
     storeTestRequest(xhr)
-    xhr.respond(retryStatus(xhr, 'complete'), CONTENT_TYPE_XML, c
+    xhr.respond(retryStatus(xhr, 'complete'), CONTENT_TYPE_XML, completeResponse(AWS_BUCKET, AWS_UPLOAD_KEY))
+  })
+
+  server.re
