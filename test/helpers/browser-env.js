@@ -162,4 +162,5 @@ global.serverCommonCase = function (partRequestHandler) {
     xhr.respond(retryStatus(xhr, 'complete'), CONTENT_TYPE_XML, completeResponse(AWS_BUCKET, AWS_UPLOAD_KEY))
   })
 
-  server.re
+  server.respondWith('GET', /.*\?uploadId.*$/, (xhr) => {
+    
