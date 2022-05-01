@@ -164,4 +164,5 @@ global.serverCommonCase = function (partRequestHandler) {
 
   server.respondWith('GET', /.*\?uploadId.*$/, (xhr) => {
     let context = storeTestRequest(xhr)
-    let maxParts = 
+    let maxParts = context.maxGetParts || 0,
+        marker = context.partNumberM
