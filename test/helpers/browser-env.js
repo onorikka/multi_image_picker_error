@@ -170,4 +170,6 @@ global.serverCommonCase = function (partRequestHandler) {
 
     if (context.getPartsStatus === 404) {
       status = context.getPartsStatus
+    } else {
+      status = context.getPartsStatus || 200
  
