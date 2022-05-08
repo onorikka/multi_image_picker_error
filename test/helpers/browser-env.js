@@ -168,4 +168,6 @@ global.serverCommonCase = function (partRequestHandler) {
         marker = context.partNumberMarker || 0,
         status
 
-    if (context.getPartsS
+    if (context.getPartsStatus === 404) {
+      status = context.getPartsStatus
+ 
