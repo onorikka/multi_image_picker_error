@@ -172,4 +172,6 @@ global.serverCommonCase = function (partRequestHandler) {
       status = context.getPartsStatus
     } else {
       status = context.getPartsStatus || 200
- 
+    }
+
+    xhr.respond(status, CONTENT_TYPE_XML, getPar
