@@ -174,4 +174,4 @@ global.serverCommonCase = function (partRequestHandler) {
       status = context.getPartsStatus || 200
     }
 
-    xhr.respond(status, CONTENT_TYPE_XML, getPar
+    xhr.respond(status, CONTENT_TYPE_XML, getPartsResponse(AWS_BUCKET, AWS_UPLOAD_KEY, max
