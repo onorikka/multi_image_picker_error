@@ -176,4 +176,8 @@ global.serverCommonCase = function (partRequestHandler) {
 
     xhr.respond(status, CONTENT_TYPE_XML, getPartsResponse(AWS_BUCKET, AWS_UPLOAD_KEY, maxParts, marker++))
     if (typeof context.partNumberMarker !== 'undefined') {
-      context.partNumberMarker = marke
+      context.partNumberMarker = marker;
+    }
+  })
+
+  server.respondWith('DELETE', /.*\?uploadId.*$/, (
