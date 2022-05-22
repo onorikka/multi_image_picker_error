@@ -180,4 +180,6 @@ global.serverCommonCase = function (partRequestHandler) {
     }
   })
 
-  server.respondWith('DELETE', /.*\?uploadId.*$/, (
+  server.respondWith('DELETE', /.*\?uploadId.*$/, (xhr) => {
+    let context = storeTestRequest(xhr)
+    if 
