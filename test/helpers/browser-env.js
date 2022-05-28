@@ -183,4 +183,6 @@ global.serverCommonCase = function (partRequestHandler) {
   server.respondWith('DELETE', /.*\?uploadId.*$/, (xhr) => {
     let context = storeTestRequest(xhr)
     if (context.deleteStatus === 404) {
-      xhr.respond(context.del
+      xhr.respond(context.deleteStatus)
+    } else {
+      xhr.respond(context.delet
