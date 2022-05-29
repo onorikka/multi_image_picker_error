@@ -189,4 +189,5 @@ global.serverCommonCase = function (partRequestHandler) {
     }
   })
 
-  server.respondWith('HEAD
+  server.respondWith('HEAD', /./, (xhr) => {
+    let context = storeTestRequest(x
