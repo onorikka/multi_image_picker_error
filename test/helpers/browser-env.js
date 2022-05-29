@@ -185,4 +185,8 @@ global.serverCommonCase = function (partRequestHandler) {
     if (context.deleteStatus === 404) {
       xhr.respond(context.deleteStatus)
     } else {
-      xhr.respond(context.delet
+      xhr.respond(context.deleteStatus || 204)
+    }
+  })
+
+  server.respondWith('HEAD
