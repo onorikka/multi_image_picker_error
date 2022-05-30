@@ -190,4 +190,6 @@ global.serverCommonCase = function (partRequestHandler) {
   })
 
   server.respondWith('HEAD', /./, (xhr) => {
-    let context = storeTestRequest(x
+    let context = storeTestRequest(xhr)
+    if (context.headStatus === 404) {
+     
