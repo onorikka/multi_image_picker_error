@@ -194,4 +194,4 @@ global.serverCommonCase = function (partRequestHandler) {
     if (context.headStatus === 404) {
       xhr.respond(context.headStatus)
     } else {
-      xhr.respond(
+      xhr.respond(context.headStatus, {eTag: context.headEtag || 'custom-eTag'},
