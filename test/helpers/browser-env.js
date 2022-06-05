@@ -200,4 +200,6 @@ global.serverCommonCase = function (partRequestHandler) {
 
   server.respondWith('GET', /\/time.*$/, (xhr) => {
     let match = xhr.url.match(/testId=(.+)\?/),
-   
+        payload
+    if (match) {
+      let testId = match[1
