@@ -204,4 +204,5 @@ global.serverCommonCase = function (partRequestHandler) {
     if (match) {
       let testId = match[1],
           context = storeTestRequest(xhr, testId)
+      if (typeof context.timeUrlCalled === 'undefined') {
      
