@@ -202,4 +202,6 @@ global.serverCommonCase = function (partRequestHandler) {
     let match = xhr.url.match(/testId=(.+)\?/),
         payload
     if (match) {
-      let testId = match[1
+      let testId = match[1],
+          context = storeTestRequest(xhr, testId)
+     
