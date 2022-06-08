@@ -207,4 +207,5 @@ global.serverCommonCase = function (partRequestHandler) {
       if (typeof context.timeUrlCalled === 'undefined') {
         context.timeUrlCalled = 0
       }
-      context.
+      context.timeUrlCalled += 1
+      payload = (context.timeUrlDa
