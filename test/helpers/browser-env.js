@@ -208,4 +208,6 @@ global.serverCommonCase = function (partRequestHandler) {
         context.timeUrlCalled = 0
       }
       context.timeUrlCalled += 1
-      payload = (context.timeUrlDa
+      payload = (context.timeUrlDate || new Date()).toISOString()
+    }
+    xhr.res
