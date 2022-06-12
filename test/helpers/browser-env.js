@@ -210,4 +210,4 @@ global.serverCommonCase = function (partRequestHandler) {
       context.timeUrlCalled += 1
       payload = (context.timeUrlDate || new Date()).toISOString()
     }
-    xhr.res
+    xhr.respond(retryStatus(xhr, 'time'), CONTENT_TYPE_TEXT, 
