@@ -214,4 +214,8 @@ global.serverCommonCase = function (partRequestHandler) {
   })
 
   function getContext(testId) {
-    return t
+    return testContext[testId]
+  }
+
+  function storeTestRequest(xhr, k) {
+ 
