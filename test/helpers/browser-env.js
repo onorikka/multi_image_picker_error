@@ -219,4 +219,6 @@ global.serverCommonCase = function (partRequestHandler) {
 
   function storeTestRequest(xhr, k) {
     k = k || xhr.requestHeaders.testId
-    testRequest
+    testRequests[k] = testRequests[k] || []
+    testRequests[k].push(xhr)
+    return
