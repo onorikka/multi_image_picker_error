@@ -221,4 +221,8 @@ global.serverCommonCase = function (partRequestHandler) {
     k = k || xhr.requestHeaders.testId
     testRequests[k] = testRequests[k] || []
     testRequests[k].push(xhr)
-    return
+    return getContext(k)
+  }
+
+  function retryStatus(xhr, type, successStatus) {
+    l
