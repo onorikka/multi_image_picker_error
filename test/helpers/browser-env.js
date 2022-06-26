@@ -234,4 +234,7 @@ global.serverCommonCase = function (partRequestHandler) {
 
       context.attempts += 1
       if (context.attempts > context.maxRetries) {
-        st
+        status = 200
+        context.attempts = 0
+      } else {
+ 
