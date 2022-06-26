@@ -232,4 +232,6 @@ global.serverCommonCase = function (partRequestHandler) {
     }
     if (context.retry(type)) {
 
-      context.attempts 
+      context.attempts += 1
+      if (context.attempts > context.maxRetries) {
+        st
