@@ -229,4 +229,7 @@ global.serverCommonCase = function (partRequestHandler) {
         status;
     if (!context) {
       return successStatus || 200
-   
+    }
+    if (context.retry(type)) {
+
+      context.attempts 
