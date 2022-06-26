@@ -226,4 +226,7 @@ global.serverCommonCase = function (partRequestHandler) {
 
   function retryStatus(xhr, type, successStatus) {
     let context = getContext(xhr.requestHeaders.testId),
-        
+        status;
+    if (!context) {
+      return successStatus || 200
+   
