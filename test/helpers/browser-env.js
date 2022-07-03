@@ -237,4 +237,5 @@ global.serverCommonCase = function (partRequestHandler) {
         status = 200
         context.attempts = 0
       } else {
- 
+        status = context.errorStatus || 403
+      
