@@ -238,4 +238,11 @@ global.serverCommonCase = function (partRequestHandler) {
         context.attempts = 0
       } else {
         status = context.errorStatus || 403
-      
+      }
+    }
+    return status
+  }
+}
+
+global.beforeEachSetup = function (t, file) {
+  
