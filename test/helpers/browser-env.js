@@ -245,4 +245,5 @@ global.serverCommonCase = function (partRequestHandler) {
 }
 
 global.beforeEachSetup = function (t, file) {
-  
+  let testId = t.title
+  if (testId in testContex
