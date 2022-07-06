@@ -247,4 +247,8 @@ global.serverCommonCase = function (partRequestHandler) {
 global.beforeEachSetup = function (t, file) {
   let testId = t.title
   if (testId in testContext) {
-    console.error('Test case must be uniquely named:'
+    console.error('Test case must be uniquely named:', testId)
+    return
+  }
+
+  t.context.testId = 
