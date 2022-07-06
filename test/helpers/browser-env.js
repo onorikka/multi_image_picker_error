@@ -246,4 +246,5 @@ global.serverCommonCase = function (partRequestHandler) {
 
 global.beforeEachSetup = function (t, file) {
   let testId = t.title
-  if (testId in testContex
+  if (testId in testContext) {
+    console.error('Test case must be uniquely named:'
