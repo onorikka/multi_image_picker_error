@@ -251,4 +251,6 @@ global.beforeEachSetup = function (t, file) {
     return
   }
 
-  t.context.testId = 
+  t.context.testId = testId
+  t.context.requestedAwsObjectKey = randomAwsKey()
+  t.contex
