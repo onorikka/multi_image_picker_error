@@ -256,4 +256,6 @@ global.beforeEachSetup = function (t, file) {
   t.context.requests = []
   t.context.errMessages = []
 
-  t.contex
+  t.context.attempts = 0
+  t.context.maxRetries = 1
+  t.context.
