@@ -258,4 +258,7 @@ global.beforeEachSetup = function (t, file) {
 
   t.context.attempts = 0
   t.context.maxRetries = 1
-  t.context.
+  t.context.retry = function (type) {}
+
+  let addFile = file || new File({
+   
