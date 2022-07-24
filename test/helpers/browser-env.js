@@ -261,4 +261,6 @@ global.beforeEachSetup = function (t, file) {
   t.context.retry = function (type) {}
 
   let addFile = file || new File({
-   
+        path: '/tmp/file',
+        size: 12000000,
+    
