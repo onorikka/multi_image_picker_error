@@ -266,4 +266,6 @@ global.beforeEachSetup = function (t, file) {
         name: randomAwsKey()
       })
 
-  t.context.baseAddCon
+  t.context.baseAddConfig = {
+    name: t.context.requestedAwsObjectKey,
+    file: ad
