@@ -263,4 +263,7 @@ global.beforeEachSetup = function (t, file) {
   let addFile = file || new File({
         path: '/tmp/file',
         size: 12000000,
-    
+        name: randomAwsKey()
+      })
+
+  t.context.baseAddCon
