@@ -268,4 +268,6 @@ global.beforeEachSetup = function (t, file) {
 
   t.context.baseAddConfig = {
     name: t.context.requestedAwsObjectKey,
-    file: ad
+    file: addFile,
+    maxRetryBackoffSecs: 0.1,
+    abortCompletionThrottlingMs
