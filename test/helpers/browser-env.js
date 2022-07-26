@@ -270,4 +270,7 @@ global.beforeEachSetup = function (t, file) {
     name: t.context.requestedAwsObjectKey,
     file: addFile,
     maxRetryBackoffSecs: 0.1,
-    abortCompletionThrottlingMs
+    abortCompletionThrottlingMs: 0
+  }
+
+  t.context.cryptoMd5 = sinon.spy(function () { return 'md5C
