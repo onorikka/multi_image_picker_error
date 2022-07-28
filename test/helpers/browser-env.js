@@ -273,4 +273,5 @@ global.beforeEachSetup = function (t, file) {
     abortCompletionThrottlingMs: 0
   }
 
-  t.context.cryptoMd5 = sinon.spy(function () { return 'md5C
+  t.context.cryptoMd5 = sinon.spy(function () { return 'md5Checksum' })
+  t.context.cryptoHexEncodedHash256 = sin
