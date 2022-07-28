@@ -274,4 +274,7 @@ global.beforeEachSetup = function (t, file) {
   }
 
   t.context.cryptoMd5 = sinon.spy(function () { return 'md5Checksum' })
-  t.context.cryptoHexEncodedHash256 = sin
+  t.context.cryptoHexEncodedHash256 = sinon.spy(function () { return 'SHA256Value' })
+
+
+  testConte
