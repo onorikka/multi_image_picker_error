@@ -277,4 +277,7 @@ global.beforeEachSetup = function (t, file) {
   t.context.cryptoHexEncodedHash256 = sinon.spy(function () { return 'SHA256Value' })
 
 
-  testConte
+  testContext[testId] = t.context
+}
+
+global.newEvaporate = function (t, evap
