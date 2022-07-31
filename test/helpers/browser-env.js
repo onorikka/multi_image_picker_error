@@ -280,4 +280,6 @@ global.beforeEachSetup = function (t, file) {
   testContext[testId] = t.context
 }
 
-global.newEvaporate = function (t, evap
+global.newEvaporate = function (t, evapConfig) {
+  evapConfig = evapConfig || {}
+  t.c
