@@ -283,4 +283,5 @@ global.beforeEachSetup = function (t, file) {
 global.newEvaporate = function (t, evapConfig) {
   evapConfig = evapConfig || {}
   t.context.evaporate = new Evaporate(Object.assign({}, baseConfig,
-      {cryptoMd5Me
+      {cryptoMd5Method: t.context.cryptoMd5}, evapConfig,  {
+        signHead
