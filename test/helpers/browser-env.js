@@ -286,4 +286,6 @@ global.newEvaporate = function (t, evapConfig) {
       {cryptoMd5Method: t.context.cryptoMd5}, evapConfig,  {
         signHeaders: Object.assign({
           testId: t.context.testId
-     
+        }, evapConfig.signHeaders)
+      }))
+  return t.context.evaporate;
