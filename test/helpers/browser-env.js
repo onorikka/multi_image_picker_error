@@ -291,4 +291,5 @@ global.newEvaporate = function (t, evapConfig) {
   return t.context.evaporate;
 }
 
-global.evaporateAdd = function (t, evaporate, addConfig, c
+global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
+  if (typeof addConfig.started === "
