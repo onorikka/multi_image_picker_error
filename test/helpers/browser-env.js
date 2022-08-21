@@ -289,3 +289,6 @@ global.newEvaporate = function (t, evapConfig) {
         }, evapConfig.signHeaders)
       }))
   return t.context.evaporate;
+}
+
+global.evaporateAdd = function (t, evaporate, addConfig, c
