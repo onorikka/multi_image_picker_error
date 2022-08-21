@@ -294,4 +294,7 @@ global.newEvaporate = function (t, evapConfig) {
 global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
   if (typeof addConfig.started === "function") {
     addConfig.user_started = addConfig.started;
-    delete
+    delete addConfig.started;
+  }
+
+  if (typeof addConfig.complete =
