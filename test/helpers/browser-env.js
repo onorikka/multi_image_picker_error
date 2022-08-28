@@ -297,4 +297,5 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
     delete addConfig.started;
   }
 
-  if (typeof addConfig.complete =
+  if (typeof addConfig.complete === "function") {
+    addConfig.user_complete 
