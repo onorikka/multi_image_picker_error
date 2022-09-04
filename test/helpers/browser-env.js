@@ -298,4 +298,8 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
   }
 
   if (typeof addConfig.complete === "function") {
-    addConfig.user_complete 
+    addConfig.user_complete = addConfig.complete;
+    delete addConfig.complete;
+  }
+
+  add
