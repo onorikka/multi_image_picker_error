@@ -302,4 +302,5 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
     delete addConfig.complete;
   }
 
-  add
+  addConfig.xAmzHeadersAtInitiate = Object.assign({
+    t
