@@ -303,4 +303,5 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
   }
 
   addConfig.xAmzHeadersAtInitiate = Object.assign({
-    t
+    testId: t.context.testId
+  }, addConfig.xAmzHeadersAtInitiate)
