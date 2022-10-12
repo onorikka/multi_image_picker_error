@@ -316,4 +316,7 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
     }
 
   } else {
-    addConfig.xAmzHeadersCommon = Object.assign({}, { testId: t.context.testId }, addConfig.x
+    addConfig.xAmzHeadersCommon = Object.assign({}, { testId: t.context.testId }, addConfig.xAmzHeadersCommon)
+  }
+
+  t.context.config = Obj
