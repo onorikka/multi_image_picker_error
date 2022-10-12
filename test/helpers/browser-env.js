@@ -319,4 +319,5 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
     addConfig.xAmzHeadersCommon = Object.assign({}, { testId: t.context.testId }, addConfig.xAmzHeadersCommon)
   }
 
-  t.context.config = Obj
+  t.context.config = Object.assign({}, t.context.baseAddConfig, addConfig, {
+    started: sinon.spy(functi
