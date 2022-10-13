@@ -320,4 +320,6 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
   }
 
   t.context.config = Object.assign({}, t.context.baseAddConfig, addConfig, {
-    started: sinon.spy(functi
+    started: sinon.spy(function (id) {
+      t.context.uploadId = id;
+      if (typeof addConfig
