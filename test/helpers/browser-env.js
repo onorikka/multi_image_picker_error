@@ -328,4 +328,5 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
     }),
     complete: sinon.spy(function (xhr, awsKey) {
       t.context.completedAwsKey = awsKey;
-      if (typeo
+      if (typeof addConfig.user_complete === "function")  {
+    
