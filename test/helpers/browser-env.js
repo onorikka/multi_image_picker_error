@@ -323,4 +323,7 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
     started: sinon.spy(function (id) {
       t.context.uploadId = id;
       if (typeof addConfig.user_started === "function")  {
-        addConfig.user_starte
+        addConfig.user_started(id);
+      }
+    }),
+    complete: sinon.spy(function (xhr, awsKey)
