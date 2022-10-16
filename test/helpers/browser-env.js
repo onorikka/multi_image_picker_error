@@ -326,4 +326,6 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
         addConfig.user_started(id);
       }
     }),
-    complete: sinon.spy(function (xhr, awsKey)
+    complete: sinon.spy(function (xhr, awsKey) {
+      t.context.completedAwsKey = awsKey;
+      if (typeo
