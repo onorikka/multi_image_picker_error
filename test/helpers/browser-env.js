@@ -334,4 +334,4 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
     })
   })
 
-  
+  return evaporate.add(t.context.config, configOverrides
