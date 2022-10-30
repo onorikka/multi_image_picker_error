@@ -339,4 +339,6 @@ global.evaporateAdd = function (t, evaporate, addConfig, configOverrides) {
 }
 global.testBase = function (t, addConfig, evapConfig) {
   addConfig = addConfig || {}
-  evapConfig = evapCon
+  evapConfig = evapConfig || {}
+
+  t.context.evapConfig = Object.assign({}, baseCon
