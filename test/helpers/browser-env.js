@@ -341,4 +341,5 @@ global.testBase = function (t, addConfig, evapConfig) {
   addConfig = addConfig || {}
   evapConfig = evapConfig || {}
 
-  t.context.evapConfig = Object.assign({}, baseCon
+  t.context.evapConfig = Object.assign({}, baseConfig,
+      {cryptoMd5Method: t.context.cryptoMd5}, evapC
