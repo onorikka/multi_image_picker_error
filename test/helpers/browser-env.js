@@ -344,4 +344,6 @@ global.testBase = function (t, addConfig, evapConfig) {
   t.context.evapConfig = Object.assign({}, baseConfig,
       {cryptoMd5Method: t.context.cryptoMd5}, evapConfig,  {
         signHeaders: Object.assign({
-          testId: t.c
+          testId: t.context.testId
+        }, evapConfig.signHeaders)
+     
