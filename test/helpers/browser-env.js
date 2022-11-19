@@ -350,4 +350,5 @@ global.testBase = function (t, addConfig, evapConfig) {
 
   let configOverrides = addConfig.configOverrides;
 
-  return Ev
+  return Evaporate.create(t.context.evapConfig)
+      .then(function (ev
