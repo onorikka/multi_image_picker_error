@@ -346,4 +346,8 @@ global.testBase = function (t, addConfig, evapConfig) {
         signHeaders: Object.assign({
           testId: t.context.testId
         }, evapConfig.signHeaders)
-     
+      })
+
+  let configOverrides = addConfig.configOverrides;
+
+  return Ev
