@@ -57,3 +57,74 @@ test.beforeEach((t) => {
   t.context.pause = function () {
     return t.context.evaporate.pause(t.context.pauseFileId || t.context.uploadId, {force: t.context.force})
   }
+
+  t.context.resume = function () {
+    return t.context.evaporate.resume(t.context.resumeFileId || t.context.uploadId)
+  }
+})
+
+// Default Setup: V2 signatures: Pause & Resume
+test('should Resume an upload and not call cryptoMd5', (t) => {
+  return testPauseResume(t)
+      .then(function () {
+        expect(t.context.cryptoMd5.called).to.be.false
+      })
+})
+test('should Resume an upload and callback started twice with the file key', (t) => {
+  return testPauseResume(t)
+      .then(function () {
+        expect(t.context.config.started.withArgs(AWS_BUCKET + '/' + t.context.requestedAwsObjectKey).calledTwice).to.be.true
+      })
+})
+test('should Resume an upload and callback pausing', (t) => {
+  return testPauseResume(t)
+      .then(function () {
+        expect(t.context.config.pausing.calledOnce).to.be.true
+      })
+})
+test('should Resume an upload and callback paused', (t) => {
+  return testPauseResume(t)
+      .then(function () {
+        expect(t.context.config.paused.calledOnce).to.be.true
+      })
+})
+test('should Resume an upload and callback resumed', (t) => {
+  return testPauseResume(t)
+      .then(function () {
+        expect(t.context.config.resumed.calledOnce).to.be.true
+      })
+})
+test('should Resume an upload with S3 requests in the correct order', (t) => {
+  return testPauseResume(t)
+      .then(function () {
+        expect(requestOrder(t)).to.equal('initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('should Resume an upload and return the correct file upload ID', (t) => {
+  return testPauseResume(t)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.equal(t.context.requestedAwsObjectKey)
+      })
+})
+
+test('should fail to pause() when file not added', (t) => {
+  t.context.pauseFileId = 'nonexistent'
+  return testPauseResume(t)
+      .then(function () {
+        return t.context.pausePromise
+            .then(
+                function () {
+                  t.fail('Expected test to fail.')
+                },
+                function (reason) {
+                  expect(reason).to.match(/has not been added/i)
+                }
+            )
+      })
+});
+test('should fail to pause() when file already paused', (t) => {
+  let pausePromise = new Promise(function (resolve, reject) {
+    t.context.pauseHandler = function () {
+      t.context.pause()
+          .then(function () {
+            t.context.pausePromise =  t.context.pause()
