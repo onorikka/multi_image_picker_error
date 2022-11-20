@@ -128,3 +128,56 @@ test('should fail to pause() when file already paused', (t) => {
       t.context.pause()
           .then(function () {
             t.context.pausePromise =  t.context.pause()
+            t.context.pausePromise.then(resolve, reject)
+          })
+    }
+  });
+
+  return Promise.race([testPauseResume(t), pausePromise])
+      .then(
+          function () {
+            t.fail('Expected test to fail.')
+          },
+          function (reason) {
+            expect(reason).to.match(/already paused/i)
+          }
+      )
+});
+
+test('should fail to resume() when file not added', (t) => {
+  t.context.resumeFileId = 'nonexistent'
+  t.context.pauseHandler = function () {
+    t.context.resumePromise = t.context.resume()
+  }
+
+  return testPauseResume(t)
+      .then(function () {
+        return t.context.resumePromise
+            .then(
+                function () {
+                  t.fail('Expected test to fail.')
+                },
+                function (reason) {
+                  expect(reason).to.match(/does not exist/i)
+                }
+            )
+      })
+});
+test('should fail to resume() when file not paused', (t) => {
+  t.context.pauseHandler = function () {
+    t.context.resumePromise = t.context.resume()
+  }
+
+  return testPauseResume(t)
+      .then(function () {
+        return t.context.resumePromise
+            .then(
+                function () {
+                  t.fail('Expected test to fail.')
+                },
+                function (reason) {
+                  expect(reason).to.match(/not been paused/i)
+                }
+            )
+      })
+});
