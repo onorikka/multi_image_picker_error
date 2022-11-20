@@ -354,4 +354,5 @@ global.testBase = function (t, addConfig, evapConfig) {
       .then(function (evaporate) {
         t.context.evaporate = evaporate
 
-        ret
+        return evaporateAdd(t, evaporate, addConfig, configOverrides)
+      }
