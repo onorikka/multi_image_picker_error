@@ -126,3 +126,61 @@ test('should re-use S3 object and callback with the new object name', (t) => {
 })
 
 test('should not re-use S3 object if the first part\'s md5 digest do not match', (t) => {
+  var cryptoMd5 = sinon.spy(function () { return 'md5Mismatch'; })
+
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892ee0867ebe79-1"', {cryptoMd5Method: cryptoMd5})
+      .then(function () {
+        expect(requestOrder(t)).to.equal(
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete,initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('should not re-use S3 object if the first part\'s md5 digest do not match calling cryptomd5 correctly', (t) => {
+  var cryptoMd5 = sinon.spy(function () { return 'md5Mismatch'; })
+
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892ee0867ebe79-1"', {cryptoMd5Method: cryptoMd5})
+      .then(function () {
+        expect(cryptoMd5.calledTwice).to.be.true
+      })
+})
+test('should not re-use S3 object if the first part\'s md5 digest do not match and callback complete with first param instance of xhr', (t) => {
+  var cryptoMd5 = sinon.spy(function () { return 'md5Mismatch'; })
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892ee0867ebe79-1"', {cryptoMd5Method: cryptoMd5})
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[0]).to.be.instanceOf(sinon.FakeXMLHttpRequest)
+      })
+})
+test('should not re-use S3 object if the first part\'s md5 digest do not match and callback complete with second param the new awsKey', (t) => {
+  var cryptoMd5 = sinon.spy(function () { return 'md5Mismatch'; })
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892ee0867ebe79-1"', {cryptoMd5Method: cryptoMd5})
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[1]).to.equal(t.context.requestedAwsObjectKey)
+      })
+})
+test('should not callback with a new object name if the first part\'s md5 digest do not match', (t) => {
+  var cryptoMd5 = sinon.spy(function () { return 'md5Mismatch'; })
+
+  return testS3Reuse(t, {nameChanged: sinon.spy()}, '"b2969107bdcfc6aa30892ee0867ebe79-1"', {cryptoMd5Method: cryptoMd5})
+      .then(function () {
+        expect(t.context.config.nameChanged.called).to.be.false
+      })
+})
+
+test('should not re-use S3 object because the Etag does not match and callback complete', (t) => {
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892eeunmatched-1"')
+      .then(function () {
+        expect(t.context.config.complete.calledOnce).to.be.true
+      })
+})
+test('should not re-use S3 object because the Etag does not match in the correct order', (t) => {
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892eeunmatched-1"')
+      .then(function () {
+        expect(requestOrder(t)).to.equal(
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete,' +
+            'HEAD,' +
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('should not re-use S3 object because the Etag does not match calling cryptomd5 correctly', (t) => {
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892eeunmatched-1"')
+      .then(function () {
+        expect(t.context.cryptoMd5.callCount).to.equal(4)
