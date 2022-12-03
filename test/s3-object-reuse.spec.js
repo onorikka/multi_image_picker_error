@@ -184,3 +184,53 @@ test('should not re-use S3 object because the Etag does not match calling crypto
   return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892eeunmatched-1"')
       .then(function () {
         expect(t.context.cryptoMd5.callCount).to.equal(4)
+      })
+})
+test('should not re-use S3 object because the Etag does not match returning the S3 file upload ID', (t) => {
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892eeunmatched-1"')
+      .then(function () {
+        expect(t.context.completedAwsKey).to.not.equal(t.context.originalName)
+      })
+})
+test('should not re-use S3 object because the Etag does not match callback complete with first param instance of xhr', (t) => {
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892eeunmatched-1"')
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[0]).to.be.instanceOf(sinon.FakeXMLHttpRequest)
+      })
+})
+test('should not re-use S3 object because the Etag does not match callback complete with second param the new awsKey', (t) => {
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892eeunmatched-1"')
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[1]).to.equal(t.context.requestedAwsObjectKey)
+      })
+})
+
+
+test('should not re-use S3 object if headObject returns 404', (t) => {
+  t.context.headStatus = 404
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892ee0867ebe79-1"')
+      .then(function () {
+        expect(requestOrder(t)).to.equal(
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete,' +
+            'HEAD,' +
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('should not re-use S3 object if headObject returns 404 status correctly', (t) => {
+  t.context.headStatus = 404
+
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892ee0867ebe79-1"')
+      .then(function () {
+        expect(testRequests[t.context.testId][9].status).to.equal(404)
+      })
+})
+test('should not re-use S3 object if headObject returns 404 callback complete with first param instance of xhr', (t) => {
+  t.context.headStatus = 404
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892eeunmatched-1"')
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[0]).to.be.instanceOf(sinon.FakeXMLHttpRequest)
+      })
+})
+test('should not re-use S3 object if headObject returns 404 callback complete with second param the new awsKey', (t) => {
+  t.context.headStatus = 404
+  return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892eeunmatched-1"')
