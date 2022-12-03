@@ -234,3 +234,67 @@ test('should not re-use S3 object if headObject returns 404 callback complete wi
 test('should not re-use S3 object if headObject returns 404 callback complete with second param the new awsKey', (t) => {
   t.context.headStatus = 404
   return testS3Reuse(t, {}, '"b2969107bdcfc6aa30892eeunmatched-1"')
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[1]).to.equal(t.context.requestedAwsObjectKey)
+      })
+})
+test('should not callback with a new object name if headObject returns 404 status correctly', (t) => {
+  t.context.headStatus = 404
+
+  return testS3Reuse(t, {nameChanged: sinon.spy()}, '"b2969107bdcfc6aa30892ee0867ebe79-1"')
+      .then(function () {
+        expect(t.context.config.nameChanged.called).to.be.false
+      })
+})
+
+// headObject (xAmzHeadersCommon)
+test('should set xAmzHeadersCommon when re-using S3 object', (t) => {
+  const config = {
+    xAmzHeadersCommon: { 'x-custom-header': 'head-reuse' }
+  }
+  return testS3Reuse(t, config)
+      .then(function () {
+        expect(headersForMethod(t, 'HEAD')['x-custom-header']).to.equal('head-reuse')
+      })
+})
+
+// Retry
+test('should not retry HEAD when trying to reuse S3 object and status is 404 with complete callback', (t) => {
+  t.context.headStatus = 404
+
+  return testS3Reuse(t)
+      .then(function () {
+        expect(t.context.config.complete.calledOnce).to.be.true
+      })
+})
+test('should not retry HEAD when trying to reuse S3 object and status is 404 in the correct order', (t) => {
+  t.context.headStatus = 404
+
+  return testS3Reuse(t)
+      .then(function () {
+        expect(requestOrder(t)).to.equal(
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete,HEAD,' +
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('should not retry HEAD when trying to reuse S3 object and status is 404 with a changed upload ID', (t) => {
+  t.context.headStatus = 404
+
+  return testS3Reuse(t)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.not.equal(t.context.originalName)
+      })
+})
+
+test('should retry HEAD twice when trying to reuse S3 object and status is non-404 error with complete callback', (t) => {
+  t.context.headStatus = 403
+
+  return testS3Reuse(t)
+      .then(function () {
+        expect(t.context.config.complete.calledOnce).to.be.true
+      })
+})
+test('should retry HEAD twice when trying to reuse S3 object and status is non-404 error in the correct order', (t) => {
+  t.context.headStatus = 403
+
+  return testS3Reuse(t)
