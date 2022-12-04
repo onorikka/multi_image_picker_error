@@ -298,3 +298,39 @@ test('should retry HEAD twice when trying to reuse S3 object and status is non-4
   t.context.headStatus = 403
 
   return testS3Reuse(t)
+      .then(function () {
+        expect(requestOrder(t)).to.equal(
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete,HEAD,HEAD,' +
+            'initiate,PUT:partNumber=1,PUT:partNumber=2,complete')
+      })
+})
+test('should retry HEAD twice when trying to reuse S3 object and status is non-404 error with a changed upload ID', (t) => {
+  t.context.headStatus = 403
+
+  return testS3Reuse(t)
+      .then(function () {
+        expect(t.context.completedAwsKey).to.not.equal(t.context.originalName)
+      })
+})
+test('should retry HEAD twice when trying to reuse S3 object and status is non-404 error callback complete with first param instance of xhr', (t) => {
+  t.context.headStatus = 403
+  return testS3Reuse(t)
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[0]).to.be.instanceOf(sinon.FakeXMLHttpRequest)
+      })
+})
+test('should retry HEAD twice when trying to reuse S3 object and status is non-404 error callback complete with second param the new awsKey', (t) => {
+  t.context.headStatus = 403
+  return testS3Reuse(t)
+      .then(function () {
+        expect(t.context.config.complete.firstCall.args[1]).to.equal(t.context.requestedAwsObjectKey)
+      })
+})
+test('should not callback with a new object name if status is non-404 error with a changed upload ID', (t) => {
+  t.context.headStatus = 403
+
+  return testS3Reuse(t, {nameChanged: sinon.spy()})
+      .then(function () {
+        expect(t.context.config.nameChanged.called).to.be.false
+      })
+})
