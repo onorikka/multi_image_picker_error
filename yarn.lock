@@ -196,3 +196,53 @@ asn1@~0.2.3:
 assert-plus@1.0.0, assert-plus@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/assert-plus/-/assert-plus-1.0.0.tgz#f12e0f3c5d77b0b1cdd9146942e4e96c1e4dd525"
+
+assert-plus@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/assert-plus/-/assert-plus-0.2.0.tgz#d74e1b87e7affc0db8aadb7021f3fe48101ab234"
+
+assertion-error@^1.0.1:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/assertion-error/-/assertion-error-1.0.2.tgz#13ca515d86206da0bac66e834dd397d87581094c"
+
+async-each@^1.0.0:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/async-each/-/async-each-1.0.1.tgz#19d386a1d9edc6e7c1c85d388aedbcc56d33602d"
+
+async@^1.4.0, async@~1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/async/-/async-1.5.2.tgz#ec6a61ae56480c0c3cb241c95618e20892f9672a"
+
+async@^2.0.1:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/async/-/async-2.5.0.tgz#843190fd6b7357a0b9e1c956edddd5ec8462b54d"
+  dependencies:
+    lodash "^4.14.0"
+
+asynckit@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
+
+ava@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/ava/-/ava-5.1.0.tgz#98c4aac86a427c9843d3af13f25552b71014bff7"
+  dependencies:
+    acorn "^8.8.1"
+    acorn-walk "^8.2.0"
+    ansi-styles "^6.2.1"
+    arrgv "^1.0.2"
+    arrify "^3.0.0"
+    callsites "^4.0.0"
+    cbor "^8.1.0"
+    chalk "^5.1.2"
+    chokidar "^3.5.3"
+    chunkd "^2.0.1"
+    ci-info "^3.6.1"
+    ci-parallel-vars "^1.0.1"
+    clean-yaml-object "^0.1.0"
+    cli-truncate "^3.1.0"
+    code-excerpt "^4.0.0"
+    common-path-prefix "^3.0.0"
+    concordance "^5.0.4"
+    currently-unhandled "^0.4.1"
+    debug "^4.3.4"
